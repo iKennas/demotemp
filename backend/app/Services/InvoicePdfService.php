@@ -15,7 +15,7 @@ class InvoicePdfService
         $invoice->loadMissing('items', 'company', 'customer', 'supplier');
         $party = $invoice->type === 'sales' ? $invoice->customer : $invoice->supplier;
 
-        $this->sweepOldTempFiles();
+        PdfLogoResolver::sweepTempFiles();
 
         $qrImagePath = null;
         if ($invoice->zatca_qr_code) {
@@ -32,26 +32,30 @@ class InvoicePdfService
             file_put_contents($qrImagePath, $builder->build()->getString());
         }
 
+        $logoPath = PdfLogoResolver::resolve($invoice->company);
+
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'party' => $party,
             'qrImagePath' => $qrImagePath,
+            'logoPath' => $logoPath,
         ])->setPaper('a4');
 
-        // Note: the QR image has been observed rendering blank specifically
-        // under `php artisan serve` (PHP's built-in dev server) on this
-        // Windows dev machine, while the identical code renders it correctly
-        // under `artisan tinker` (CLI SAPI). The invoice text/totals/layout
-        // all render correctly either way, and the ZATCA QR *data* is stored
-        // regardless (Invoice::zatca_qr_code) independent of the PDF image.
-        // Re-verify the QR image specifically once deployed behind php-fpm
-        // (the production target), which is a different execution model
-        // than the built-in server and may not share this quirk.
+        // Note: the QR image (and, by the same code path, the logo) has been
+        // observed rendering blank specifically under `php artisan serve`
+        // (PHP's built-in dev server) on this Windows dev machine, while the
+        // identical code renders it correctly under `artisan tinker` (CLI
+        // SAPI). The invoice text/totals/layout all render correctly either
+        // way, and the ZATCA QR *data* is stored regardless (Invoice::
+        // zatca_qr_code) independent of the PDF image. Re-verify both images
+        // specifically once deployed behind php-fpm (the production target),
+        // which is a different execution model than the built-in server and
+        // may not share this quirk.
         //
-        // Not deleting the temp file synchronously here on purpose - dompdf's
-        // image pipeline needs it to persist past this call in ways that
+        // Not deleting the temp files synchronously here on purpose - dompdf's
+        // image pipeline needs them to persist past this call in ways that
         // aren't obvious from its public API. Stale files are swept on the
-        // next call instead - see sweepOldTempFiles().
+        // next call instead - see PdfLogoResolver::sweepTempFiles().
         return $pdf->output();
     }
 
@@ -67,19 +71,5 @@ class InvoicePdfService
         $invoice->update(['pdf_path' => $path]);
 
         return $path;
-    }
-
-    private function sweepOldTempFiles(): void
-    {
-        $dir = storage_path('app/tmp');
-        if (! is_dir($dir)) {
-            return;
-        }
-
-        foreach (glob("{$dir}/qr-*.png") as $file) {
-            if (filemtime($file) < time() - 60) {
-                @unlink($file);
-            }
-        }
     }
 }

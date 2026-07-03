@@ -22,6 +22,9 @@
 <body>
     <div class="header">
         <div>
+            @if($logoPath)
+                <img src="{{ $logoPath }}" style="max-height:48px; max-width:180px; margin-bottom:8px;">
+            @endif
             <h1>{{ $invoice->company->name }}</h1>
             @if($invoice->company->tax_number)
                 <p class="muted">VAT: {{ $invoice->company->tax_number }}</p>

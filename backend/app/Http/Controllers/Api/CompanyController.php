@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -31,5 +32,37 @@ class CompanyController extends Controller
         $company->update($data);
 
         return response()->json(['data' => $company]);
+    }
+
+    public function uploadLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => ['required', 'image', 'max:2048', 'mimes:png,jpg,jpeg,svg'],
+        ]);
+
+        $company = $request->user()->company;
+
+        if ($company->logo_path) {
+            Storage::disk(config('filesystems.default'))->delete($company->logo_path);
+        }
+
+        $path = $request->file('logo')->store("logos/{$company->id}", config('filesystems.default'));
+        $company->update(['logo_path' => $path]);
+
+        return response()->json(['data' => $company]);
+    }
+
+    public function logo(Request $request)
+    {
+        $company = $request->user()->company;
+        $disk = Storage::disk(config('filesystems.default'));
+
+        if (! $company->logo_path || ! $disk->exists($company->logo_path)) {
+            abort(404);
+        }
+
+        return response($disk->get($company->logo_path), 200, [
+            'Content-Type' => $disk->mimeType($company->logo_path),
+        ]);
     }
 }

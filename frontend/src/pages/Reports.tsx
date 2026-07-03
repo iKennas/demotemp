@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { api } from '../api/client'
-import { Card, PageHeader, Select } from '../components/ui'
+import { api, downloadPdf } from '../api/client'
+import { Button, Card, PageHeader, Select } from '../components/ui'
 
 interface TrialBalanceRow { code: string; name: string; type: string; debit: number; credit: number }
 interface TrialBalance { data: TrialBalanceRow[]; total_debit: number; total_credit: number }
@@ -123,6 +123,12 @@ function BalanceSheetView() {
   )
 }
 
+const reportPdf: Record<string, { path: string; filename: string }> = {
+  'trial-balance': { path: '/reports/trial-balance/pdf', filename: 'trial-balance.pdf' },
+  'profit-and-loss': { path: '/reports/profit-and-loss/pdf', filename: 'profit-and-loss.pdf' },
+  'balance-sheet': { path: '/reports/balance-sheet/pdf', filename: 'balance-sheet.pdf' },
+}
+
 export default function Reports() {
   const [tab, setTab] = useState('trial-balance')
 
@@ -131,11 +137,16 @@ export default function Reports() {
       <PageHeader
         title="Reports"
         action={
-          <Select value={tab} onChange={(e) => setTab(e.target.value)} className="w-56">
-            <option value="trial-balance">Trial Balance</option>
-            <option value="profit-and-loss">Profit & Loss</option>
-            <option value="balance-sheet">Balance Sheet</option>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={tab} onChange={(e) => setTab(e.target.value)} className="w-56">
+              <option value="trial-balance">Trial Balance</option>
+              <option value="profit-and-loss">Profit & Loss</option>
+              <option value="balance-sheet">Balance Sheet</option>
+            </Select>
+            <Button variant="secondary" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
+              Download PDF
+            </Button>
+          </div>
         }
       />
       <Card>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\JournalEntryLine;
+use App\Services\PdfLogoResolver;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -24,7 +26,7 @@ class ReportController extends Controller
             ->when($request->to, fn ($q) => $q->whereDate('journal_entries.entry_date', '<=', $request->to));
     }
 
-    public function trialBalance(Request $request)
+    private function trialBalanceData(Request $request): array
     {
         $sums = $this->postedLines($request)
             ->selectRaw('journal_entry_lines.account_id, SUM(journal_entry_lines.debit) as debit, SUM(journal_entry_lines.credit) as credit')
@@ -46,10 +48,39 @@ class ReportController extends Controller
             ];
         })->filter(fn ($row) => $row['debit'] != 0 || $row['credit'] != 0)->values();
 
-        return response()->json([
-            'data' => $accounts,
+        return [
+            'accounts' => $accounts,
             'total_debit' => $accounts->sum('debit'),
             'total_credit' => $accounts->sum('credit'),
+        ];
+    }
+
+    public function trialBalance(Request $request)
+    {
+        $data = $this->trialBalanceData($request);
+
+        return response()->json([
+            'data' => $data['accounts'],
+            'total_debit' => $data['total_debit'],
+            'total_credit' => $data['total_credit'],
+        ]);
+    }
+
+    public function trialBalancePdf(Request $request)
+    {
+        $data = $this->trialBalanceData($request);
+
+        $pdf = Pdf::loadView('pdf.trial-balance', [
+            'company' => $request->user()->company,
+            'logoPath' => PdfLogoResolver::resolve($request->user()->company),
+            'accounts' => $data['accounts'],
+            'totalDebit' => $data['total_debit'],
+            'totalCredit' => $data['total_credit'],
+        ])->setPaper('a4');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="trial-balance.pdf"',
         ]);
     }
 
@@ -78,7 +109,7 @@ class ReportController extends Controller
         return response()->json(['data' => $lines, 'account' => $account]);
     }
 
-    public function profitAndLoss(Request $request)
+    private function profitAndLossData(Request $request): array
     {
         $sums = $this->postedLines($request)
             ->join('accounts', 'accounts.id', '=', 'journal_entry_lines.account_id')
@@ -93,16 +124,41 @@ class ReportController extends Controller
         $totalRevenue = $revenue->sum('amount');
         $totalExpenses = $expenses->sum('amount');
 
-        return response()->json([
+        return [
             'revenue' => $revenue->values(),
             'expenses' => $expenses->values(),
             'total_revenue' => $totalRevenue,
             'total_expenses' => $totalExpenses,
             'net_income' => $totalRevenue - $totalExpenses,
+        ];
+    }
+
+    public function profitAndLoss(Request $request)
+    {
+        return response()->json($this->profitAndLossData($request));
+    }
+
+    public function profitAndLossPdf(Request $request)
+    {
+        $data = $this->profitAndLossData($request);
+
+        $pdf = Pdf::loadView('pdf.profit-and-loss', [
+            'company' => $request->user()->company,
+            'logoPath' => PdfLogoResolver::resolve($request->user()->company),
+            'revenue' => $data['revenue'],
+            'expenses' => $data['expenses'],
+            'totalRevenue' => $data['total_revenue'],
+            'totalExpenses' => $data['total_expenses'],
+            'netIncome' => $data['net_income'],
+        ])->setPaper('a4');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="profit-and-loss.pdf"',
         ]);
     }
 
-    public function balanceSheet(Request $request)
+    private function balanceSheetData(Request $request): array
     {
         $sums = $this->postedLines($request)
             ->join('accounts', 'accounts.id', '=', 'journal_entry_lines.account_id')
@@ -120,7 +176,7 @@ class ReportController extends Controller
             return $r->type === 'revenue' ? ((float) $r->credit - (float) $r->debit) : -((float) $r->debit - (float) $r->credit);
         });
 
-        return response()->json([
+        return [
             'assets' => $assets->values(),
             'liabilities' => $liabilities->values(),
             'equity' => $equity->values(),
@@ -128,6 +184,33 @@ class ReportController extends Controller
             'total_assets' => $assets->sum('amount'),
             'total_liabilities' => $liabilities->sum('amount'),
             'total_equity' => $equity->sum('amount') + $netIncome,
+        ];
+    }
+
+    public function balanceSheet(Request $request)
+    {
+        return response()->json($this->balanceSheetData($request));
+    }
+
+    public function balanceSheetPdf(Request $request)
+    {
+        $data = $this->balanceSheetData($request);
+
+        $pdf = Pdf::loadView('pdf.balance-sheet', [
+            'company' => $request->user()->company,
+            'logoPath' => PdfLogoResolver::resolve($request->user()->company),
+            'assets' => $data['assets'],
+            'liabilities' => $data['liabilities'],
+            'equity' => $data['equity'],
+            'netIncome' => $data['net_income'],
+            'totalAssets' => $data['total_assets'],
+            'totalLiabilities' => $data['total_liabilities'],
+            'totalEquity' => $data['total_equity'],
+        ])->setPaper('a4');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="balance-sheet.pdf"',
         ]);
     }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '../api/client'
+import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Supplier } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
@@ -178,9 +178,18 @@ export default function Suppliers() {
           </form>
         ) : (
           <div>
-            <button onClick={() => setShowStatement(false)} className="mb-3 text-xs font-medium text-indigo-600 hover:underline">
-              ← Back to details
-            </button>
+            <div className="mb-3 flex items-center justify-between">
+              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-indigo-600 hover:underline">
+                ← Back to details
+              </button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => downloadPdf(`/suppliers/${editing!.id}/statement/pdf`, `statement-${editing!.name}.pdf`)}
+              >
+                Download PDF
+              </Button>
+            </div>
             {statementLoading && <p className="text-sm text-gray-400">Loading…</p>}
             {statement && (
               <div className="text-sm">

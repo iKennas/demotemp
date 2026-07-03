@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
+use App\Services\PdfLogoResolver;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -83,6 +85,36 @@ class SupplierController extends Controller
      */
     public function statement(Supplier $supplier)
     {
+        $result = $this->statementData($supplier);
+
+        return response()->json([
+            'data' => $result['lines'],
+            'opening_balance' => $result['opening_balance'],
+            'closing_balance' => $result['closing_balance'],
+        ]);
+    }
+
+    public function statementPdf(Request $request, Supplier $supplier)
+    {
+        $result = $this->statementData($supplier);
+
+        $pdf = Pdf::loadView('pdf.statement', [
+            'company' => $request->user()->company,
+            'logoPath' => PdfLogoResolver::resolve($request->user()->company),
+            'party' => $supplier,
+            'lines' => $result['lines'],
+            'openingBalance' => $result['opening_balance'],
+            'closingBalance' => $result['closing_balance'],
+        ])->setPaper('a4');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"statement-{$supplier->id}.pdf\"",
+        ]);
+    }
+
+    private function statementData(Supplier $supplier): array
+    {
         $invoices = $supplier->invoices()
             ->where('type', 'purchase')
             ->whereIn('status', ['sent', 'partially_paid', 'paid', 'overdue'])
@@ -114,10 +146,10 @@ class SupplierController extends Controller
             return $line;
         });
 
-        return response()->json([
-            'data' => $lines,
+        return [
+            'lines' => $lines,
             'opening_balance' => (float) $supplier->opening_balance,
             'closing_balance' => $running,
-        ]);
+        ];
     }
 }

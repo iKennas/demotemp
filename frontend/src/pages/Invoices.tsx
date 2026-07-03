@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '../api/client'
+import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Invoice, InvoiceItem, Paginated, Product, Supplier } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
@@ -91,15 +91,7 @@ export default function Invoices() {
     onError: (err) => setError(apiErrorMessage(err)),
   })
 
-  const downloadPdf = async (id: number, invoiceNumber: string) => {
-    const res = await api.get(`/invoices/${id}/pdf`, { responseType: 'blob' })
-    const url = URL.createObjectURL(res.data)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${invoiceNumber}.pdf`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+  const downloadInvoicePdf = (id: number, invoiceNumber: string) => downloadPdf(`/invoices/${id}/pdf`, `${invoiceNumber}.pdf`)
 
   const updateItem = (i: number, patch: Partial<InvoiceItem>) => setItems((its) => its.map((it, idx) => (idx === i ? { ...it, ...patch } : it)))
 
@@ -314,7 +306,7 @@ export default function Invoices() {
             {viewing.status !== 'draft' && (
               <div className="space-y-2">
                 <div className="flex gap-2">
-                  <Button variant="secondary" onClick={() => downloadPdf(viewing.id, viewing.invoice_number)} className="flex-1">
+                  <Button variant="secondary" onClick={() => downloadInvoicePdf(viewing.id, viewing.invoice_number)} className="flex-1">
                     Download PDF
                   </Button>
                   {can('invoices.manage') && (

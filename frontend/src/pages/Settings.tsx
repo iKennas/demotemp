@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
@@ -64,6 +64,76 @@ function BillingCard() {
           <ErrorText>{checkoutError}</ErrorText>
         </div>
       )}
+    </Card>
+  )
+}
+
+function LogoCard({ company }: { company?: Company }) {
+  const { can } = useAuth()
+  const queryClient = useQueryClient()
+  const fileInput = useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let objectUrl: string | null = null
+    if (company?.logo_path) {
+      api.get('/company/logo', { responseType: 'blob' }).then((res) => {
+        objectUrl = URL.createObjectURL(res.data)
+        setPreview(objectUrl)
+      })
+    } else {
+      setPreview(null)
+    }
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
+  }, [company?.logo_path])
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData()
+      form.append('logo', file)
+      return api.post('/company/logo', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company'] })
+      if (fileInput.current) fileInput.current.value = ''
+    },
+    onError: (err) => setError(apiErrorMessage(err)),
+  })
+
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError('')
+    uploadMutation.mutate(file)
+  }
+
+  if (!can('settings.view')) return null
+
+  return (
+    <Card className="max-w-xl p-6">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">Company Logo</h2>
+      <div className="flex items-center gap-4">
+        <div className="flex h-16 w-32 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50">
+          {preview ? (
+            <img src={preview} alt="Company logo" className="max-h-full max-w-full object-contain" />
+          ) : (
+            <span className="text-xs text-gray-400">No logo</span>
+          )}
+        </div>
+        {can('settings.manage') && (
+          <div>
+            <input ref={fileInput} type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={onFileChange} className="hidden" id="logo-upload" />
+            <Button type="button" variant="secondary" disabled={uploadMutation.isPending} onClick={() => fileInput.current?.click()}>
+              {uploadMutation.isPending ? 'Uploading…' : 'Upload Logo'}
+            </Button>
+            <p className="mt-1 text-xs text-gray-400">PNG, JPG, or SVG. Max 2MB. Appears on invoices, statements, and reports.</p>
+          </div>
+        )}
+      </div>
+      <ErrorText>{error}</ErrorText>
     </Card>
   )
 }
@@ -144,6 +214,7 @@ export default function Settings() {
         </form>
       </Card>
 
+      <LogoCard company={data} />
       <BillingCard />
     </div>
   )

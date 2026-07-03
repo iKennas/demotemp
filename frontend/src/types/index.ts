@@ -18,6 +18,7 @@ export interface Company {
   currency: string
   country: string
   status: 'active' | 'suspended' | 'trial'
+  logo_path: string | null
   plan?: Plan
 }
 

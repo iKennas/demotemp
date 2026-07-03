@@ -39,9 +39,12 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::apiResource('accounts', AccountController::class)->only(['index', 'show']);
         Route::apiResource('journal-entries', JournalEntryController::class)->only(['index', 'show']);
         Route::get('reports/trial-balance', [ReportController::class, 'trialBalance']);
+        Route::get('reports/trial-balance/pdf', [ReportController::class, 'trialBalancePdf']);
         Route::get('reports/general-ledger/{account}', [ReportController::class, 'generalLedger']);
         Route::get('reports/profit-and-loss', [ReportController::class, 'profitAndLoss']);
+        Route::get('reports/profit-and-loss/pdf', [ReportController::class, 'profitAndLossPdf']);
         Route::get('reports/balance-sheet', [ReportController::class, 'balanceSheet']);
+        Route::get('reports/balance-sheet/pdf', [ReportController::class, 'balanceSheetPdf']);
     });
     Route::middleware('permission:finance.manage')->group(function () {
         Route::apiResource('accounts', AccountController::class)->except(['index', 'show']);
@@ -54,6 +57,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     Route::middleware('permission:customers.view')->group(function () {
         Route::apiResource('customers', CustomerController::class)->only(['index', 'show']);
         Route::get('customers/{customer}/statement', [CustomerController::class, 'statement']);
+        Route::get('customers/{customer}/statement/pdf', [CustomerController::class, 'statementPdf']);
     });
     Route::middleware('permission:customers.manage')->group(function () {
         Route::apiResource('customers', CustomerController::class)->except(['index', 'show']);
@@ -63,6 +67,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     Route::middleware('permission:suppliers.view')->group(function () {
         Route::apiResource('suppliers', SupplierController::class)->only(['index', 'show']);
         Route::get('suppliers/{supplier}/statement', [SupplierController::class, 'statement']);
+        Route::get('suppliers/{supplier}/statement/pdf', [SupplierController::class, 'statementPdf']);
     });
     Route::middleware('permission:suppliers.manage')->group(function () {
         Route::apiResource('suppliers', SupplierController::class)->except(['index', 'show']);
@@ -113,7 +118,9 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::apiResource('users', UserController::class)->except(['index', 'show']);
     });
     Route::middleware('permission:settings.view')->get('company', [CompanyController::class, 'show']);
+    Route::middleware('permission:settings.view')->get('company/logo', [CompanyController::class, 'logo']);
     Route::middleware('permission:settings.manage')->put('company', [CompanyController::class, 'update']);
+    Route::middleware('permission:settings.manage')->post('company/logo', [CompanyController::class, 'uploadLogo']);
     Route::middleware('permission:settings.view')->get('subscription', [SubscriptionController::class, 'show']);
     Route::middleware('permission:settings.manage')->post('subscription/checkout', [SubscriptionController::class, 'checkout']);
 
