@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BankAccountController;
 use App\Http\Controllers\Api\BankTransferController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\JournalEntryController;
@@ -31,6 +32,7 @@ Route::post('webhooks/moyasar', [WebhookController::class, 'moyasar']);
 Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
+    Route::get('dashboard/summary', [DashboardController::class, 'summary']);
 
     // Financial module - chart of accounts, journal entries, reports
     Route::middleware('permission:finance.view')->group(function () {

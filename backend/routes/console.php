@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\GenerateRecurringInvoices;
+use App\Console\Commands\MarkOverdueInvoices;
 use App\Console\Commands\SendLowStockAlerts;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -10,5 +11,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command(MarkOverdueInvoices::class)->dailyAt('00:30');
 Schedule::command(GenerateRecurringInvoices::class)->dailyAt('01:00');
 Schedule::command(SendLowStockAlerts::class)->dailyAt('07:00');
