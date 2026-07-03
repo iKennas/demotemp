@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Product } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', type: 'product', sale_price: '', cost_price: '', tax_rate: '15', track_inventory: true, quantity_on_hand: '0' }
@@ -19,10 +19,12 @@ export default function Products() {
   const [editForm, setEditForm] = useState(emptyEdit)
   const [adjustQty, setAdjustQty] = useState('')
   const [adjustType, setAdjustType] = useState<'in' | 'out'>('in')
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => (await api.get<Paginated<Product>>('/products')).data,
+    queryKey: ['products', search, page],
+    queryFn: async () => (await api.get<Paginated<Product>>('/products', { params: { search: search || undefined, page } })).data,
   })
 
   useEffect(() => {
@@ -85,39 +87,49 @@ export default function Products() {
         title="Products & Inventory"
         action={can('inventory.manage') && <Button onClick={() => setOpen(true)}>+ New Product</Button>}
       />
+      <div className="mb-4 max-w-xs">
+        <Input placeholder="Search products…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+      </div>
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Sale Price</th>
-              <th className="px-4 py-3">On Hand</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message={search ? 'No products match your search.' : 'No products yet.'} />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Sale Price</th>
+                <th className="px-4 py-3">On Hand</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
-            )}
-            {data?.data.map((p) => {
-              const low = p.track_inventory && p.reorder_level !== null && Number(p.quantity_on_hand) <= Number(p.reorder_level)
-              return (
-                <tr key={p.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(p)}>
-                  <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                  <td className="px-4 py-3 capitalize text-gray-600">{p.type}</td>
-                  <td className="px-4 py-3 text-gray-600">{p.sale_price}</td>
-                  <td className="px-4 py-3 text-gray-600">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
-                  <td className="px-4 py-3">
-                    {low ? <Badge color="red">Low stock</Badge> : <Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>}
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && (
+                <tr>
+                  <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
+              )}
+              {data?.data.map((p) => {
+                const low = p.track_inventory && p.reorder_level !== null && Number(p.quantity_on_hand) <= Number(p.reorder_level)
+                return (
+                  <tr key={p.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(p)}>
+                    <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                    <td className="px-4 py-3 capitalize text-gray-600">{p.type}</td>
+                    <td className="px-4 py-3 text-gray-600">{p.sale_price}</td>
+                    <td className="px-4 py-3 text-gray-600">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
+                    <td className="px-4 py-3">
+                      {low ? <Badge color="red">Low stock</Badge> : <Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="New Product">

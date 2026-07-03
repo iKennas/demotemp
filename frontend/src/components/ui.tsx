@@ -92,3 +92,55 @@ export function ErrorText({ children }: { children: ReactNode }) {
   if (!children) return null
   return <p className="mt-2 text-sm text-red-600">{children}</p>
 }
+
+export function EmptyState({ message, action }: { message: string; action?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+      <p className="text-sm text-gray-400">{message}</p>
+      {action}
+    </div>
+  )
+}
+
+export function Spinner({ className = '' }: { className?: string }) {
+  return (
+    <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" width="20" height="20">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+  )
+}
+
+interface PaginationProps {
+  currentPage: number
+  lastPage: number
+  total: number
+  perPage: number
+  onPageChange: (page: number) => void
+}
+
+export function Pagination({ currentPage, lastPage, total, perPage, onPageChange }: PaginationProps) {
+  if (lastPage <= 1) return null
+
+  const from = (currentPage - 1) * perPage + 1
+  const to = Math.min(currentPage * perPage, total)
+
+  return (
+    <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 text-sm text-gray-600">
+      <span>
+        Showing {from}–{to} of {total}
+      </span>
+      <div className="flex gap-2">
+        <Button variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+          ← Prev
+        </Button>
+        <span className="flex items-center px-2">
+          Page {currentPage} of {lastPage}
+        </span>
+        <Button variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
+          Next →
+        </Button>
+      </div>
+    </div>
+  )
+}

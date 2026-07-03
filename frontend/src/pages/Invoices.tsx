@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Invoice, InvoiceItem, Paginated, Product, Supplier } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 const emptyItem: InvoiceItem = { product_id: null, description: '', quantity: 1, unit_price: 0, tax_rate: 15, discount: 0 }
@@ -19,10 +19,12 @@ export default function Invoices() {
   const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10))
   const [items, setItems] = useState<InvoiceItem[]>([{ ...emptyItem }])
   const [error, setError] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['invoices'],
-    queryFn: async () => (await api.get<Paginated<Invoice>>('/invoices')).data,
+    queryKey: ['invoices', statusFilter, page],
+    queryFn: async () => (await api.get<Paginated<Invoice>>('/invoices', { params: { status: statusFilter || undefined, page } })).data,
   })
 
   const { data: customers } = useQuery({
@@ -71,6 +73,24 @@ export default function Invoices() {
     onError: (err) => setEmailStatus(apiErrorMessage(err)),
   })
 
+  const voidMutation = useMutation({
+    mutationFn: (id: number) => api.post(`/invoices/${id}/void`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      setViewing(null)
+    },
+    onError: (err) => setError(apiErrorMessage(err)),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/invoices/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      setViewing(null)
+    },
+    onError: (err) => setError(apiErrorMessage(err)),
+  })
+
   const downloadPdf = async (id: number, invoiceNumber: string) => {
     const res = await api.get(`/invoices/${id}/pdf`, { responseType: 'blob' })
     const url = URL.createObjectURL(res.data)
@@ -111,38 +131,56 @@ export default function Invoices() {
         title="Invoices"
         action={can('invoices.manage') && <Button onClick={() => setOpen(true)}>+ New Invoice</Button>}
       />
+      <div className="mb-4 max-w-xs">
+        <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}>
+          <option value="">All statuses</option>
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="partially_paid">Partially paid</option>
+          <option value="paid">Paid</option>
+          <option value="overdue">Overdue</option>
+          <option value="void">Void</option>
+        </Select>
+      </div>
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Invoice #</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Party</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3 text-right">Total</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message={statusFilter ? 'No invoices with this status.' : 'No invoices yet.'} />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td>
+                <th className="px-4 py-3">Invoice #</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Party</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3 text-right">Total</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
-            )}
-            {data?.data.map((inv) => (
-              <tr key={inv.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setViewing(inv)}>
-                <td className="px-4 py-3 font-mono text-gray-600">{inv.invoice_number}</td>
-                <td className="px-4 py-3 capitalize text-gray-600">{inv.type}</td>
-                <td className="px-4 py-3 text-gray-900">{inv.customer?.name ?? inv.supplier?.name ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{inv.issue_date?.slice(0, 10)}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{inv.total}</td>
-                <td className="px-4 py-3">
-                  <Badge color={statusColor[inv.status]}>{inv.status.replace('_', ' ')}</Badge>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && (
+                <tr>
+                  <td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td>
+                </tr>
+              )}
+              {data?.data.map((inv) => (
+                <tr key={inv.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setViewing(inv)}>
+                  <td className="px-4 py-3 font-mono text-gray-600">{inv.invoice_number}</td>
+                  <td className="px-4 py-3 capitalize text-gray-600">{inv.type}</td>
+                  <td className="px-4 py-3 text-gray-900">{inv.customer?.name ?? inv.supplier?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{inv.issue_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{inv.total}</td>
+                  <td className="px-4 py-3">
+                    <Badge color={statusColor[inv.status]}>{inv.status.replace('_', ' ')}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="New Invoice">
@@ -212,6 +250,7 @@ export default function Invoices() {
         onClose={() => {
           setViewing(null)
           setEmailStatus('')
+          setError('')
         }}
         title={viewing?.invoice_number ?? ''}
       >
@@ -248,8 +287,28 @@ export default function Invoices() {
               </div>
             )}
             {viewing.status === 'draft' && can('invoices.manage') && (
-              <Button onClick={() => sendMutation.mutate(viewing.id)} disabled={sendMutation.isPending} className="w-full">
-                {sendMutation.isPending ? 'Sending…' : 'Send Invoice'}
+              <div className="space-y-2">
+                <Button onClick={() => sendMutation.mutate(viewing.id)} disabled={sendMutation.isPending} className="w-full">
+                  {sendMutation.isPending ? 'Sending…' : 'Send Invoice'}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => confirm('Delete this draft invoice?') && deleteMutation.mutate(viewing.id)}
+                  disabled={deleteMutation.isPending}
+                  className="w-full"
+                >
+                  Delete Draft
+                </Button>
+              </div>
+            )}
+            {viewing.status === 'sent' && Number(viewing.paid_amount) === 0 && can('invoices.manage') && (
+              <Button
+                variant="danger"
+                onClick={() => confirm('Void this invoice? This cannot be undone.') && voidMutation.mutate(viewing.id)}
+                disabled={voidMutation.isPending}
+                className="w-full"
+              >
+                {voidMutation.isPending ? 'Voiding…' : 'Void Invoice'}
               </Button>
             )}
             {viewing.status !== 'draft' && (
@@ -272,6 +331,7 @@ export default function Invoices() {
                 {emailStatus && <p className="text-xs text-gray-500">{emailStatus}</p>}
               </div>
             )}
+            <ErrorText>{error}</ErrorText>
           </div>
         )}
       </Modal>

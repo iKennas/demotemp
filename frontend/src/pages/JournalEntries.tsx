@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Line { account_id: string; debit: string; credit: string; description: string }
@@ -28,10 +28,11 @@ export default function JournalEntries() {
   const [description, setDescription] = useState('')
   const [lines, setLines] = useState<Line[]>([{ ...emptyLine }, { ...emptyLine }])
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['journal-entries'],
-    queryFn: async () => (await api.get<Paginated<JournalEntry>>('/journal-entries')).data,
+    queryKey: ['journal-entries', page],
+    queryFn: async () => (await api.get<Paginated<JournalEntry>>('/journal-entries', { params: { page } })).data,
   })
 
   const { data: accounts } = useQuery({
@@ -62,6 +63,16 @@ export default function JournalEntries() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journal-entries'] }),
   })
 
+  const voidMutation = useMutation({
+    mutationFn: (id: number) => api.post(`/journal-entries/${id}/void`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journal-entries'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/journal-entries/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journal-entries'] }),
+  })
+
   const totalDebit = lines.reduce((s, l) => s + (Number(l.debit) || 0), 0)
   const totalCredit = lines.reduce((s, l) => s + (Number(l.credit) || 0), 0)
   const balanced = totalDebit === totalCredit && totalDebit > 0
@@ -85,48 +96,68 @@ export default function JournalEntries() {
         action={can('finance.manage') && <Button onClick={() => setOpen(true)}>+ New Entry</Button>}
       />
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Entry #</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Description</th>
-              <th className="px-4 py-3 text-right">Debit</th>
-              <th className="px-4 py-3 text-right">Credit</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message="No journal entries yet." />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={7}>Loading…</td>
+                <th className="px-4 py-3">Entry #</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3 text-right">Debit</th>
+                <th className="px-4 py-3 text-right">Credit</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3" />
               </tr>
-            )}
-            {data?.data.map((je) => (
-              <tr key={je.id}>
-                <td className="px-4 py-3 font-mono text-gray-600">{je.entry_number}</td>
-                <td className="px-4 py-3 text-gray-600">{je.entry_date?.slice(0, 10)}</td>
-                <td className="px-4 py-3 text-gray-900">{je.description ?? '—'}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{je.total_debit}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{je.total_credit}</td>
-                <td className="px-4 py-3">
-                  <Badge color={statusColor[je.status]}>{je.status}</Badge>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  {je.status === 'draft' && can('finance.manage') && (
-                    <button
-                      onClick={() => postMutation.mutate(je.id)}
-                      className="text-xs font-medium text-indigo-600 hover:underline"
-                    >
-                      Post
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && (
+                <tr>
+                  <td className="px-4 py-6 text-gray-400" colSpan={7}>Loading…</td>
+                </tr>
+              )}
+              {data?.data.map((je) => (
+                <tr key={je.id}>
+                  <td className="px-4 py-3 font-mono text-gray-600">{je.entry_number}</td>
+                  <td className="px-4 py-3 text-gray-600">{je.entry_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-gray-900">{je.description ?? '—'}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{je.total_debit}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{je.total_credit}</td>
+                  <td className="px-4 py-3">
+                    <Badge color={statusColor[je.status]}>{je.status}</Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right space-x-2">
+                    {can('finance.manage') && je.status === 'draft' && (
+                      <>
+                        <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-indigo-600 hover:underline">
+                          Post
+                        </button>
+                        <button
+                          onClick={() => confirm('Delete this draft entry?') && deleteMutation.mutate(je.id)}
+                          className="text-xs font-medium text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                    {can('finance.manage') && je.status === 'posted' && (
+                      <button
+                        onClick={() => confirm('Void this entry? This cannot be undone.') && voidMutation.mutate(je.id)}
+                        className="text-xs font-medium text-red-600 hover:underline"
+                      >
+                        Void
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="New Journal Entry">

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Supplier } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', email: '', phone: '', tax_number: '', status: 'active' }
@@ -25,10 +25,12 @@ export default function Suppliers() {
   const [editing, setEditing] = useState<Supplier | null>(null)
   const [editForm, setEditForm] = useState(empty)
   const [showStatement, setShowStatement] = useState(false)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['suppliers'],
-    queryFn: async () => (await api.get<Paginated<Supplier>>('/suppliers')).data,
+    queryKey: ['suppliers', search, page],
+    queryFn: async () => (await api.get<Paginated<Supplier>>('/suppliers', { params: { search: search || undefined, page } })).data,
   })
 
   const { data: statement, isLoading: statementLoading } = useQuery({
@@ -83,39 +85,44 @@ export default function Suppliers() {
         title="Suppliers"
         action={can('suppliers.manage') && <Button onClick={() => setOpen(true)}>+ New Supplier</Button>}
       />
+      <div className="mb-4 max-w-xs">
+        <Input placeholder="Search suppliers…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+      </div>
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message={search ? 'No suppliers match your search.' : 'No suppliers yet.'} />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={4}>Loading…</td>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
-            )}
-            {data?.data.length === 0 && (
-              <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={4}>No suppliers yet.</td>
-              </tr>
-            )}
-            {data?.data.map((s) => (
-              <tr key={s.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(s)}>
-                <td className="px-4 py-3 font-medium text-gray-900">{s.name}</td>
-                <td className="px-4 py-3 text-gray-600">{s.email ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{s.phone ?? '—'}</td>
-                <td className="px-4 py-3">
-                  <Badge color={s.status === 'active' ? 'green' : 'gray'}>{s.status}</Badge>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && (
+                <tr>
+                  <td className="px-4 py-6 text-gray-400" colSpan={4}>Loading…</td>
+                </tr>
+              )}
+              {data?.data.map((s) => (
+                <tr key={s.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(s)}>
+                  <td className="px-4 py-3 font-medium text-gray-900">{s.name}</td>
+                  <td className="px-4 py-3 text-gray-600">{s.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{s.phone ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <Badge color={s.status === 'active' ? 'green' : 'gray'}>{s.status}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="New Supplier">

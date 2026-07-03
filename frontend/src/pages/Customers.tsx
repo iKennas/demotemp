@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Paginated } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', type: 'individual', email: '', phone: '', tax_number: '', status: 'active' }
@@ -25,10 +25,12 @@ export default function Customers() {
   const [editing, setEditing] = useState<Customer | null>(null)
   const [editForm, setEditForm] = useState(empty)
   const [showStatement, setShowStatement] = useState(false)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['customers'],
-    queryFn: async () => (await api.get<Paginated<Customer>>('/customers')).data,
+    queryKey: ['customers', search, page],
+    queryFn: async () => (await api.get<Paginated<Customer>>('/customers', { params: { search: search || undefined, page } })).data,
   })
 
   const { data: statement, isLoading: statementLoading } = useQuery({
@@ -94,41 +96,46 @@ export default function Customers() {
           )
         }
       />
+      <div className="mb-4 max-w-xs">
+        <Input placeholder="Search customers…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+      </div>
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message={search ? 'No customers match your search.' : 'No customers yet.'} />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
-            )}
-            {data?.data.length === 0 && (
-              <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={5}>No customers yet.</td>
-              </tr>
-            )}
-            {data?.data.map((c) => (
-              <tr key={c.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(c)}>
-                <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-                <td className="px-4 py-3 capitalize text-gray-600">{c.type}</td>
-                <td className="px-4 py-3 text-gray-600">{c.email ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{c.phone ?? '—'}</td>
-                <td className="px-4 py-3">
-                  <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && (
+                <tr>
+                  <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
+                </tr>
+              )}
+              {data?.data.map((c) => (
+                <tr key={c.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(c)}>
+                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
+                  <td className="px-4 py-3 capitalize text-gray-600">{c.type}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.phone ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="New Customer">

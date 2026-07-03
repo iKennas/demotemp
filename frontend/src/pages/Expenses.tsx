@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
-import { Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Expense {
@@ -23,8 +23,9 @@ export default function Expenses() {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useQuery({ queryKey: ['expenses'], queryFn: async () => (await api.get<Paginated<Expense>>('/expenses')).data })
+  const { data, isLoading } = useQuery({ queryKey: ['expenses', page], queryFn: async () => (await api.get<Paginated<Expense>>('/expenses', { params: { page } })).data })
   const { data: accounts } = useQuery({
     queryKey: ['accounts-expense'],
     queryFn: async () => (await api.get<{ data: Account[] }>('/accounts', { params: { type: 'expense' } })).data.data,
@@ -40,6 +41,11 @@ export default function Expenses() {
     onError: (err) => setError(apiErrorMessage(err)),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/expenses/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses'] }),
+  })
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     setError('')
@@ -50,29 +56,47 @@ export default function Expenses() {
     <div>
       <PageHeader title="Expenses" action={can('cash.manage') && <Button onClick={() => setOpen(true)}>+ Record Expense</Button>} />
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Expense #</th>
-              <th className="px-4 py-3">Account</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3 text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td></tr>}
-            {data?.data.map((e) => (
-              <tr key={e.id}>
-                <td className="px-4 py-3 font-mono text-gray-600">{e.expense_number}</td>
-                <td className="px-4 py-3 text-gray-900">{e.account?.name ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{e.category ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{e.expense_date?.slice(0, 10)}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{e.amount}</td>
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message="No expenses recorded yet." />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+              <tr>
+                <th className="px-4 py-3">Expense #</th>
+                <th className="px-4 py-3">Account</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td></tr>}
+              {data?.data.map((e) => (
+                <tr key={e.id}>
+                  <td className="px-4 py-3 font-mono text-gray-600">{e.expense_number}</td>
+                  <td className="px-4 py-3 text-gray-900">{e.account?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{e.category ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{e.expense_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{e.amount}</td>
+                  <td className="px-4 py-3 text-right">
+                    {can('cash.manage') && (
+                      <button
+                        onClick={() => confirm('Delete this expense? This reverses its journal entry.') && deleteMutation.mutate(e.id)}
+                        className="text-xs font-medium text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Record Expense">

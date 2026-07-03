@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount, Customer, Paginated, Supplier } from '../types'
-import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Payment {
@@ -25,8 +25,9 @@ export default function Payments() {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useQuery({ queryKey: ['payments'], queryFn: async () => (await api.get<Paginated<Payment>>('/payments')).data })
+  const { data, isLoading } = useQuery({ queryKey: ['payments', page], queryFn: async () => (await api.get<Paginated<Payment>>('/payments', { params: { page } })).data })
   const { data: customers } = useQuery({ queryKey: ['customers-all'], queryFn: async () => (await api.get<Paginated<Customer>>('/customers', { params: { per_page: 200 } })).data.data })
   const { data: suppliers } = useQuery({ queryKey: ['suppliers-all'], queryFn: async () => (await api.get<Paginated<Supplier>>('/suppliers', { params: { per_page: 200 } })).data.data })
   const { data: bankAccounts } = useQuery({ queryKey: ['bank-accounts'], queryFn: async () => (await api.get<{ data: BankAccount[] }>('/bank-accounts')).data.data })
@@ -50,6 +51,11 @@ export default function Payments() {
     onError: (err) => setError(apiErrorMessage(err)),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/payments/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['payments'] }),
+  })
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     setError('')
@@ -60,31 +66,49 @@ export default function Payments() {
     <div>
       <PageHeader title="Payments" action={can('cash.manage') && <Button onClick={() => setOpen(true)}>+ Record Payment</Button>} />
       <Card>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Payment #</th>
-              <th className="px-4 py-3">Direction</th>
-              <th className="px-4 py-3">Party</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3 text-right">Amount</th>
-              <th className="px-4 py-3">Method</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td></tr>}
-            {data?.data.map((p) => (
-              <tr key={p.id}>
-                <td className="px-4 py-3 font-mono text-gray-600">{p.payment_number}</td>
-                <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? 'Received' : 'Paid'}</Badge></td>
-                <td className="px-4 py-3 text-gray-900">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{p.payment_date?.slice(0, 10)}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{p.amount}</td>
-                <td className="px-4 py-3 capitalize text-gray-600">{p.method}</td>
+        {data?.data.length === 0 && !isLoading ? (
+          <EmptyState message="No payments recorded yet." />
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+              <tr>
+                <th className="px-4 py-3">Payment #</th>
+                <th className="px-4 py-3">Direction</th>
+                <th className="px-4 py-3">Party</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3">Method</th>
+                <th className="px-4 py-3" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={7}>Loading…</td></tr>}
+              {data?.data.map((p) => (
+                <tr key={p.id}>
+                  <td className="px-4 py-3 font-mono text-gray-600">{p.payment_number}</td>
+                  <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? 'Received' : 'Paid'}</Badge></td>
+                  <td className="px-4 py-3 text-gray-900">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{p.payment_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{p.amount}</td>
+                  <td className="px-4 py-3 capitalize text-gray-600">{p.method}</td>
+                  <td className="px-4 py-3 text-right">
+                    {can('cash.manage') && (
+                      <button
+                        onClick={() => confirm('Delete this payment? This reverses its journal entry.') && deleteMutation.mutate(p.id)}
+                        className="text-xs font-medium text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {data && (
+          <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
+        )}
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Record Payment">
