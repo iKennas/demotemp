@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "URS",
+    "tagline": "Cloud Accounting"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Chart of Accounts",
+    "journalEntries": "Journal Entries",
+    "reports": "Reports",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "expenses": "Expenses",
+    "revenues": "Revenues",
+    "bankAccounts": "Bank Accounts",
+    "products": "Products & Inventory",
+    "team": "Team",
+    "settings": "Company Settings",
+    "admin": "Platform Admin",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "signInTitle": "Sign in to {{app}}",
+    "signInSubtitle": "Cloud accounting for your business",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "noAccount": "No account?",
+    "registerLink": "Register your company",
+    "registerTitle": "Set up your company",
+    "registerSubtitle": "Start your 14-day free trial on URS.",
+    "companyName": "Company name",
+    "yourName": "Your name",
+    "confirmPassword": "Confirm password",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating your account…",
+    "haveAccount": "Already have an account?",
+    "signInLink": "Sign in"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back, {{name}}",
+    "revenueAllTime": "Revenue (all time)",
+    "expensesAllTime": "Expenses (all time)",
+    "netIncome": "Net Income",
+    "totalAssets": "Total Assets",
+    "totalLiabilities": "Total Liabilities",
+    "totalEquity": "Total Equity",
+    "trendTitle": "Revenue vs Expenses (last 6 months)",
+    "noPermission": "You don't have permission to view financial summaries.",
+    "overdueInvoices": "Overdue Invoices ({{count}})",
+    "nothingOverdue": "Nothing overdue. 🎉",
+    "lowStock": "Low Stock ({{count}})",
+    "wellStocked": "All products well stocked.",
+    "recentInvoices": "Recent Invoices",
+    "noInvoicesYet": "No invoices yet.",
+    "recentPayments": "Recent Payments",
+    "noPaymentsYet": "No payments yet."
+  },
+  "common": {
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  }
+}

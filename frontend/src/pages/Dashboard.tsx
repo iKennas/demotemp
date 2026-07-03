@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api/client'
 import { Badge, Card, PageHeader } from '../components/ui'
@@ -93,6 +94,7 @@ function WidgetCard({ title, children }: { title: string; children: React.ReactN
 
 export default function Dashboard() {
   const { user, can } = useAuth()
+  const { t } = useTranslation()
   const canViewFinance = can('finance.view')
 
   const { data: pl } = useQuery({
@@ -117,21 +119,21 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`Welcome back, ${user?.name ?? ''}`} />
+      <PageHeader title={t('dashboard.welcomeBack', { name: user?.name ?? '' })} />
 
       {canViewFinance ? (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <Stat label="Revenue (all time)" value={fmt(pl?.total_revenue)} />
-            <Stat label="Expenses (all time)" value={fmt(pl?.total_expenses)} />
-            <Stat label="Net Income" value={fmt(pl?.net_income)} tone={pl && pl.net_income < 0 ? 'text-red-600' : 'text-green-600'} />
-            <Stat label="Total Assets" value={fmt(bs?.total_assets)} />
-            <Stat label="Total Liabilities" value={fmt(bs?.total_liabilities)} />
-            <Stat label="Total Equity" value={fmt(bs?.total_equity)} />
+            <Stat label={t('dashboard.revenueAllTime')} value={fmt(pl?.total_revenue)} />
+            <Stat label={t('dashboard.expensesAllTime')} value={fmt(pl?.total_expenses)} />
+            <Stat label={t('dashboard.netIncome')} value={fmt(pl?.net_income)} tone={pl && pl.net_income < 0 ? 'text-red-600' : 'text-green-600'} />
+            <Stat label={t('dashboard.totalAssets')} value={fmt(bs?.total_assets)} />
+            <Stat label={t('dashboard.totalLiabilities')} value={fmt(bs?.total_liabilities)} />
+            <Stat label={t('dashboard.totalEquity')} value={fmt(bs?.total_equity)} />
           </div>
 
           {summary?.monthly_trend && (
-            <WidgetCard title="Revenue vs Expenses (last 6 months)">
+            <WidgetCard title={t('dashboard.trendTitle')}>
               <ResponsiveContainer width="100%" height={260}>
                 <ComposedChart data={summary.monthly_trend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -150,14 +152,14 @@ export default function Dashboard() {
           )}
         </>
       ) : (
-        <Card className="p-6 text-sm text-gray-500">You don't have permission to view financial summaries.</Card>
+        <Card className="p-6 text-sm text-gray-500">{t('dashboard.noPermission')}</Card>
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {summary?.overdue_invoices && (
-          <WidgetCard title={`Overdue Invoices (${summary.overdue_invoices.count})`}>
+          <WidgetCard title={t('dashboard.overdueInvoices', { count: summary.overdue_invoices.count })}>
             {summary.overdue_invoices.data.length === 0 ? (
-              <p className="text-sm text-gray-400">Nothing overdue. 🎉</p>
+              <p className="text-sm text-gray-400">{t('dashboard.nothingOverdue')}</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {summary.overdue_invoices.data.map((inv) => (
@@ -175,9 +177,9 @@ export default function Dashboard() {
         )}
 
         {summary?.low_stock && (
-          <WidgetCard title={`Low Stock (${summary.low_stock.count})`}>
+          <WidgetCard title={t('dashboard.lowStock', { count: summary.low_stock.count })}>
             {summary.low_stock.data.length === 0 ? (
-              <p className="text-sm text-gray-400">All products well stocked.</p>
+              <p className="text-sm text-gray-400">{t('dashboard.wellStocked')}</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {summary.low_stock.data.map((p) => (
@@ -192,9 +194,9 @@ export default function Dashboard() {
         )}
 
         {summary?.recent_invoices && (
-          <WidgetCard title="Recent Invoices">
+          <WidgetCard title={t('dashboard.recentInvoices')}>
             {summary.recent_invoices.length === 0 ? (
-              <p className="text-sm text-gray-400">No invoices yet.</p>
+              <p className="text-sm text-gray-400">{t('dashboard.noInvoicesYet')}</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {summary.recent_invoices.map((inv) => (
@@ -215,9 +217,9 @@ export default function Dashboard() {
         )}
 
         {summary?.recent_payments && (
-          <WidgetCard title="Recent Payments">
+          <WidgetCard title={t('dashboard.recentPayments')}>
             {summary.recent_payments.length === 0 ? (
-              <p className="text-sm text-gray-400">No payments yet.</p>
+              <p className="text-sm text-gray-400">{t('dashboard.noPaymentsYet')}</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {summary.recent_payments.map((p) => (

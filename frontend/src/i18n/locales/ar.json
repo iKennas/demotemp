@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "URS",
+    "tagline": "منصة محاسبية سحابية"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "accounts": "دليل الحسابات",
+    "journalEntries": "القيود اليومية",
+    "reports": "التقارير",
+    "customers": "العملاء",
+    "suppliers": "الموردون",
+    "invoices": "الفواتير",
+    "payments": "المدفوعات",
+    "expenses": "المصروفات",
+    "revenues": "الإيرادات",
+    "bankAccounts": "الحسابات البنكية",
+    "products": "المنتجات والمخزون",
+    "team": "الفريق",
+    "settings": "إعدادات الشركة",
+    "admin": "إدارة المنصة",
+    "signOut": "تسجيل الخروج"
+  },
+  "auth": {
+    "signInTitle": "تسجيل الدخول إلى {{app}}",
+    "signInSubtitle": "منصة محاسبية سحابية لعملك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول…",
+    "noAccount": "ليس لديك حساب؟",
+    "registerLink": "سجّل شركتك",
+    "registerTitle": "إعداد شركتك",
+    "registerSubtitle": "ابدأ نسختك التجريبية المجانية لمدة 14 يومًا في URS.",
+    "companyName": "اسم الشركة",
+    "yourName": "اسمك",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "createAccount": "إنشاء حساب",
+    "creatingAccount": "جاري إنشاء حسابك…",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "signInLink": "تسجيل الدخول"
+  },
+  "dashboard": {
+    "welcomeBack": "مرحبًا بعودتك، {{name}}",
+    "revenueAllTime": "إجمالي الإيرادات",
+    "expensesAllTime": "إجمالي المصروفات",
+    "netIncome": "صافي الربح",
+    "totalAssets": "إجمالي الأصول",
+    "totalLiabilities": "إجمالي الخصوم",
+    "totalEquity": "إجمالي حقوق الملكية",
+    "trendTitle": "الإيرادات مقابل المصروفات (آخر 6 أشهر)",
+    "noPermission": "ليس لديك صلاحية لعرض الملخصات المالية.",
+    "overdueInvoices": "الفواتير المتأخرة ({{count}})",
+    "nothingOverdue": "لا توجد فواتير متأخرة. 🎉",
+    "lowStock": "مخزون منخفض ({{count}})",
+    "wellStocked": "جميع المنتجات بكميات كافية.",
+    "recentInvoices": "أحدث الفواتير",
+    "noInvoicesYet": "لا توجد فواتير بعد.",
+    "recentPayments": "أحدث المدفوعات",
+    "noPaymentsYet": "لا توجد مدفوعات بعد."
+  },
+  "common": {
+    "loading": "جاري التحميل…",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل"
+  }
+}
