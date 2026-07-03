@@ -13,4 +13,5 @@ return [
     'reports' => ['view'],
     'users' => ['view', 'manage'],
     'settings' => ['view', 'manage'],
+    'audit' => ['view'],
 ];

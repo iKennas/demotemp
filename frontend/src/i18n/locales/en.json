@@ -17,6 +17,7 @@
     "bankAccounts": "Bank Accounts",
     "products": "Products & Inventory",
     "team": "Team",
+    "auditLog": "Audit Log",
     "settings": "Company Settings",
     "admin": "Platform Admin",
     "signOut": "Sign out"

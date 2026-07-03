@@ -24,6 +24,7 @@ const NAV: NavItem[] = [
   { to: '/bank-accounts', labelKey: 'nav.bankAccounts', permission: 'cash.view' },
   { to: '/products', labelKey: 'nav.products', permission: 'inventory.view' },
   { to: '/users', labelKey: 'nav.team', permission: 'users.view' },
+  { to: '/audit-log', labelKey: 'nav.auditLog', permission: 'audit.view' },
   { to: '/settings', labelKey: 'nav.settings', permission: 'settings.view' },
   { to: '/admin', labelKey: 'nav.admin', roleOnly: 'Super Admin' },
 ]

@@ -19,6 +19,7 @@ import Products from './pages/Products'
 import Users from './pages/Users'
 import Settings from './pages/Settings'
 import Admin from './pages/Admin'
+import AuditLog from './pages/AuditLog'
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/bank-accounts" element={<BankAccounts />} />
             <Route path="/products" element={<Products />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/audit-log" element={<AuditLog />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/admin" element={<Admin />} />
           </Route>

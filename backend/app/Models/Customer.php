@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Customer extends Model
 {
-    use BelongsToCompany, SoftDeletes;
+    use Auditable, BelongsToCompany, SoftDeletes;
 
     protected function casts(): array
     {

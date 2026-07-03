@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\Admin\CompanyController as AdminCompanyController;
 use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
+use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BankAccountController;
 use App\Http\Controllers\Api\BankTransferController;
@@ -123,6 +124,9 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     Route::middleware('permission:settings.manage')->post('company/logo', [CompanyController::class, 'uploadLogo']);
     Route::middleware('permission:settings.view')->get('subscription', [SubscriptionController::class, 'show']);
     Route::middleware('permission:settings.manage')->post('subscription/checkout', [SubscriptionController::class, 'checkout']);
+
+    // Audit log - who changed what
+    Route::middleware('permission:audit.view')->get('audit-logs', [AuditLogController::class, 'index']);
 
     // Platform admin - Super Admin only, spans all companies
     Route::prefix('admin')->middleware('role:Super Admin')->group(function () {

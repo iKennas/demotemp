@@ -24,7 +24,7 @@ class RolePermissionSeeder extends Seeder
                 'invoices.view', 'invoices.manage',
                 'cash.view', 'cash.manage',
                 'customers.view', 'suppliers.view',
-                'reports.view',
+                'reports.view', 'audit.view',
             ],
             'Employee' => [
                 'invoices.view', 'customers.view', 'suppliers.view',

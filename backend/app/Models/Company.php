@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use Spatie\Permission\Models\Role;
 ])]
 class Company extends Model
 {
-    use SoftDeletes;
+    use Auditable, SoftDeletes;
 
     /**
      * Spatie's teams pivot tables use company_id as a NOT NULL primary-key
