@@ -2,9 +2,9 @@
 
 > **Purpose of this file:** single source of truth for where the project stands.
 > Read this first when starting a new chat session. Update the "Done" / "Next"
-> sections as work progresses. Last updated: **2026-07-03** (audit log pass —
-> all code-side spec work is now done; only user-provisioned deployment and
-> live Moyasar keys remain).
+> sections as work progresses. Last updated: **2026-07-03** (UI redesign +
+> dark mode pass — all code-side spec work plus visual polish is done; only
+> user-provisioned deployment and live Moyasar keys remain).
 
 URS is a **multi-tenant SaaS cloud accounting platform** for the Saudi market,
 built from the spec in `الدراسة الفنية والتقنية.pdf` (Arabic technical study).
@@ -199,6 +199,24 @@ This machine required manual setup that a fresh clone will also need:
   matching frontend page + sidebar link, i18n'd in both locales.
 - 4 new tests covering create/update diffs, delete logging, tenant
   isolation, and password redaction.
+
+### UI redesign + dark mode (2026-07-03)
+- **Semantic token system:** CSS variables (`app`, `surface`, `muted`, `line`,
+  `content`, `subtle`, `faint`, `accent`, …) defined in `index.css`, registered
+  as Tailwind utilities via `@theme inline`. Values swap under a `.dark` class
+  so every page adapts automatically — no per-page `dark:` overrides needed.
+- **`ThemeContext`** (`src/contexts/ThemeContext.tsx`): light/dark state
+  persisted to `localStorage`, respects OS preference on first visit. A
+  pre-paint script in `index.html` applies the saved theme before first
+  render to avoid a flash of the wrong theme.
+- **Accent color switched from indigo to emerald green**, used sparingly
+  (primary buttons, active nav, links, positive figures) rather than
+  throughout — every other surface stays neutral.
+- Rewrote `components/ui.tsx` (Button/Input/Card/Badge/Modal/etc.) and all 17
+  pages onto the token system; sidebar gained a sun/moon theme toggle next to
+  the language switcher. Dashboard chart colors/tooltip are theme-aware.
+- Verified in-browser (light + dark) via screenshots: login, dashboard,
+  tables, and modals all render correctly with no console errors.
 
 ---
 
