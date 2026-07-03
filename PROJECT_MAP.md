@@ -121,10 +121,21 @@ This machine required manual setup that a fresh clone will also need:
   gated per section) backing a recharts `ComposedChart` (6-month revenue vs.
   expense trend) plus widget cards for overdue invoices, low stock, recent
   invoices, recent payments.
-- **i18n / RTL:** `react-i18next` with English + Arabic locale files
-  (`src/i18n/locales/{en,ar}.json`), language switcher in the sidebar footer,
-  automatic `dir="rtl"` + mirrored layout when Arabic is active, persisted to
-  localStorage. Layout, Login, Register, Dashboard fully translated.
+- **i18n / RTL — full coverage (2026-07-04):** `react-i18next` with English +
+  Arabic locale files (`src/i18n/locales/{en,ar}.json`, ~230 keys), language
+  switcher in the sidebar footer, automatic `dir="rtl"` + mirrored layout when
+  Arabic is active, persisted to localStorage. **Every page** is translated
+  (initially only Layout/Login/Register/Dashboard were; the other 15 pages
+  were hardcoded English until this pass) — table headers, form labels,
+  buttons, status badges, empty states, and `confirm()` dialogs all go
+  through `t()`. Shared `Pagination`/`Modal` in `components/ui.tsx` and
+  `ProtectedRoute`'s loading state are translated too. Verified in-browser
+  end-to-end (RTL mirroring, status badges, modal content) across invoices,
+  customers, and the audit log. **Known gap:** audit log entry
+  `description` text (e.g. "Invoice INV-000001 created") is generated
+  server-side by the PHP `Auditable` trait and stays in English — it's
+  dynamic audit-trail content, not static UI, so translating it would need
+  backend i18n work (out of scope for this pass).
 - **Company logo:** upload UI in Settings (multipart upload, live preview via
   an authenticated `GET /company/logo` blob endpoint since the storage disk
   is private), shown on invoices/statements/reports PDFs.
