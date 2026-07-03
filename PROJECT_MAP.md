@@ -2,7 +2,9 @@
 
 > **Purpose of this file:** single source of truth for where the project stands.
 > Read this first when starting a new chat session. Update the "Done" / "Next"
-> sections as work progresses. Last updated: **2026-07-03** (PDF polish + QR fix pass).
+> sections as work progresses. Last updated: **2026-07-03** (audit log pass —
+> all code-side spec work is now done; only user-provisioned deployment and
+> live Moyasar keys remain).
 
 URS is a **multi-tenant SaaS cloud accounting platform** for the Saudi market,
 built from the spec in `الدراسة الفنية والتقنية.pdf` (Arabic technical study).
@@ -128,11 +130,12 @@ This machine required manual setup that a fresh clone will also need:
   is private), shown on invoices/statements/reports PDFs.
 
 ### Tests
-- **23 feature tests, all passing** (`php artisan test`, 174 assertions):
+- **27 feature tests, all passing** (`php artisan test`, 200 assertions):
   full invoice→payment→reports flow with balance assertions, journal-entry
   balance validation, tenant isolation, role-permission enforcement,
   recurring invoices, low-stock alerts, statements, expenses/revenues
-  posting, invoice PDF generation, dashboard summary.
+  posting, invoice PDF generation, dashboard summary, audit log
+  create/update/delete diffs + tenant isolation + password redaction.
 
 ### Storage / integrations configured (env placeholders, not live)
 - Cloudflare R2 (S3-compatible) disk `r2` for invoices/attachments/backups.
@@ -182,6 +185,21 @@ This machine required manual setup that a fresh clone will also need:
   correctly in generated PDFs. **This was not an environment-only issue —
   it would have shipped broken to production too.**
 
+### Audit log (2026-07-03)
+- **`audit_logs` table** + `AuditLog` model (company-scoped, nullable
+  company_id as a safety net for edge cases with no company context).
+- **`Auditable` trait** (`app/Models/Concerns/Auditable.php`) hooks
+  create/update/delete on any model that uses it and writes a diff (before/
+  after on update, full attribute snapshot on create/delete), automatically
+  excluding hidden fields (e.g. `password`) via `getHidden()`. Applied to:
+  Invoice, JournalEntry, Payment, Expense, Revenue, Customer, Supplier,
+  Product, BankAccount, BankTransfer, Account, User, Company.
+- New `audit.view` permission (Company Owner + Accountant by default) gates
+  `GET /audit-logs` (paginated, filterable by action/model/user/date) and a
+  matching frontend page + sidebar link, i18n'd in both locales.
+- 4 new tests covering create/update diffs, delete logging, tenant
+  isolation, and password redaction.
+
 ---
 
 ## 4. KNOWN LIMITATIONS / DEFERRED ⚠️
@@ -198,21 +216,23 @@ This machine required manual setup that a fresh clone will also need:
 
 ## 5. NEXT TASKS (in recommended order) 🔜
 
-> Pick the top item unless the user directs otherwise. Update this list as items
-> get done — move them up to section 3 and add new ones discovered along the way.
+> Everything code-side from the original spec-derived punch list is now
+> done. The two items left both require the user to provision external
+> accounts/credentials — there is no more prep work to do without them.
 
 1. **Actually deploy** — user needs to: create a GitHub repo and push (see
    `DEPLOYMENT.md` §1), get a VPS + Forge account, get a domain, get a
    Cloudflare account (R2 + Pages), get a Resend account. Then follow
-   `DEPLOYMENT.md` end to end. Everything on the code/config side is ready —
-   this step is now blocked on the user provisioning external accounts, not
-   on more prep work.
+   `DEPLOYMENT.md` end to end. Everything on the code/config side is ready.
 2. **Wire real Moyasar sandbox keys** and verify the checkout + webhook loop
    end-to-end; fix any field-name mismatches (limitation #1). Best done after
    deployment (needs a real callback URL).
-3. **Audit log** — track who changed what (useful for accounting compliance).
-   Not yet started; next code-side task to pick up regardless of deployment
-   status.
+
+If picking this back up with no deployment credentials available yet, good
+uses of time: expand automated test coverage further, add more granular
+audit-log filtering/UI (e.g. a per-record "history" view), or revisit the
+`frontend` bundle-size warning (currently one ~830KB chunk — candidate for
+route-based code splitting via `React.lazy`).
 
 ---
 
