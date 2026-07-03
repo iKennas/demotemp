@@ -120,6 +120,23 @@ This machine required manual setup that a fresh clone will also need:
 - Cloudflare R2 (S3-compatible) disk `r2` for invoices/attachments/backups.
 - Moyasar payment gateway keys.
 
+### Deployment prep (2026-07-03)
+- **Git repo initialized** at project root, initial commit made. Not pushed
+  anywhere yet — no remote configured.
+- **`DEPLOYMENT.md`** — full step-by-step guide: Laravel Forge for the backend
+  (including the monorepo `Web Directory: /backend/public` gotcha), Cloudflare
+  Pages for the frontend, scheduler + queue worker setup, post-deploy
+  verification checklist, rollback notes.
+- **`backend/.env.production.example`** and **`frontend/.env.production.example`**
+  — filled-in production env templates (R2, Resend, Moyasar, queue=redis,
+  cache=redis), ready to paste into Forge's env editor.
+- **`backend/scripts/forge-deploy.sh`** — the exact deploy script to paste into
+  Forge (composer install --no-dev, migrate --force, cache config/routes/views,
+  queue:restart, fpm reload).
+- Verified locally that `config:cache` / `route:cache` / `view:cache` all
+  succeed and the app still serves correctly with them active (a common
+  source of prod-only breakage) — cleared back to dev mode afterward.
+
 ---
 
 ## 4. KNOWN LIMITATIONS / DEFERRED ⚠️
@@ -145,11 +162,15 @@ This machine required manual setup that a fresh clone will also need:
 > Pick the top item unless the user directs otherwise. Update this list as items
 > get done — move them up to section 3 and add new ones discovered along the way.
 
-1. **Deployment** — VPS + Laravel Forge (the chosen host). Get it on a real
-   domain behind php-fpm; this also lets us finally verify the ZATCA QR PDF
-   render (limitation #1). Set up queue worker + scheduler cron.
+1. **Actually deploy** — user needs to: create a GitHub repo and push (see
+   `DEPLOYMENT.md` §1), get a VPS + Forge account, get a domain, get a
+   Cloudflare account (R2 + Pages), get a Resend account. Then follow
+   `DEPLOYMENT.md` end to end. Everything on the code/config side is ready —
+   this step is now blocked on the user provisioning external accounts, not
+   on more prep work.
 2. **Wire real Moyasar sandbox keys** and verify the checkout + webhook loop
-   end-to-end; fix any field-name mismatches (limitation #2).
+   end-to-end; fix any field-name mismatches (limitation #2). Best done after
+   deployment (needs a real callback URL).
 3. **Expand test coverage** — recurring invoices, low-stock command, statements,
    PDF generation, expenses/revenues posting. Currently only 7 tests.
 4. **Frontend polish** — edit/delete UI for remaining modules (journal entries
