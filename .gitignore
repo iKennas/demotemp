@@ -1,0 +1,16 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Claude Code local-only settings (machine-specific permissions)
+.claude/settings.local.json
+
+# Local dev tooling artifacts (not needed once composer is installed system-wide, e.g. on Forge)
+composer.phar
+composer-setup.php
+
+# Dev server logs
+serve.log
+mysqld.log
