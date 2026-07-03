@@ -29,10 +29,15 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-app px-4">
       <Card className="w-full max-w-sm p-8">
-        <h1 className="mb-1 text-xl font-semibold text-gray-900">{t('auth.signInTitle', { app: t('app.name') })}</h1>
-        <p className="mb-6 text-sm text-gray-500">{t('auth.signInSubtitle')}</p>
+        <div className="mb-6 flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-base font-bold text-white">U</span>
+          <div>
+            <h1 className="text-lg font-semibold leading-tight text-content">{t('auth.signInTitle', { app: t('app.name') })}</h1>
+            <p className="text-sm leading-tight text-faint">{t('auth.signInSubtitle')}</p>
+          </div>
+        </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <Field label={t('auth.email')}>
             <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -45,9 +50,9 @@ export default function Login() {
             {submitting ? t('auth.signingIn') : t('auth.signIn')}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-faint">
           {t('auth.noAccount')}{' '}
-          <Link to="/register" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/register" className="font-medium text-accent hover:underline">
             {t('auth.registerLink')}
           </Link>
         </p>

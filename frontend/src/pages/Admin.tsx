@@ -18,7 +18,7 @@ function CompaniesTab() {
 
   return (
     <table className="w-full text-left text-sm">
-      <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+      <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
           <th className="px-4 py-3">Company</th>
           <th className="px-4 py-3">Plan</th>
@@ -26,13 +26,13 @@ function CompaniesTab() {
           <th className="px-4 py-3">Status</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-100">
-        {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={4}>Loading…</td></tr>}
+      <tbody className="divide-y divide-line">
+        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td></tr>}
         {data?.data.map((c) => (
           <tr key={c.id}>
-            <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-            <td className="px-4 py-3 text-gray-600">{c.plan?.name ?? '—'}</td>
-            <td className="px-4 py-3 text-gray-600">{c.users_count}</td>
+            <td className="px-4 py-3 font-medium text-content">{c.name}</td>
+            <td className="px-4 py-3 text-subtle">{c.plan?.name ?? '—'}</td>
+            <td className="px-4 py-3 text-subtle">{c.users_count}</td>
             <td className="px-4 py-3">
               <Select
                 value={c.status}
@@ -56,7 +56,7 @@ function PlansTab() {
 
   return (
     <table className="w-full text-left text-sm">
-      <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+      <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
           <th className="px-4 py-3">Name</th>
           <th className="px-4 py-3">Price</th>
@@ -65,14 +65,14 @@ function PlansTab() {
           <th className="px-4 py-3">Status</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-100">
-        {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td></tr>}
+      <tbody className="divide-y divide-line">
+        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={5}>Loading…</td></tr>}
         {data?.map((p) => (
           <tr key={p.id}>
-            <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-            <td className="px-4 py-3 text-gray-600">{p.price}</td>
-            <td className="px-4 py-3 capitalize text-gray-600">{p.billing_cycle}</td>
-            <td className="px-4 py-3 text-gray-600">{p.max_users ?? 'Unlimited'}</td>
+            <td className="px-4 py-3 font-medium text-content">{p.name}</td>
+            <td className="px-4 py-3 text-subtle">{p.price}</td>
+            <td className="px-4 py-3 capitalize text-subtle">{p.billing_cycle}</td>
+            <td className="px-4 py-3 text-subtle">{p.max_users ?? 'Unlimited'}</td>
             <td className="px-4 py-3"><Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? 'Active' : 'Inactive'}</Badge></td>
           </tr>
         ))}

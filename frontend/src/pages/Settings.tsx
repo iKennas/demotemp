@@ -35,23 +35,23 @@ function BillingCard() {
 
   return (
     <Card className="max-w-xl p-6">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Subscription & Billing</h2>
+      <h2 className="mb-4 text-lg font-semibold text-content">Subscription & Billing</h2>
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-500">Plan</span>
+          <span className="text-faint">Plan</span>
           <span className="font-medium">{data?.plan?.name ?? '—'}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Price</span>
+          <span className="text-faint">Price</span>
           <span className="font-medium">{data?.plan ? `${data.plan.price} SAR / ${data.plan.billing_cycle}` : '—'}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Status</span>
+          <span className="text-faint">Status</span>
           {data?.data ? <Badge color={statusColor[data.data.status] ?? 'gray'}>{data.data.status}</Badge> : <span>—</span>}
         </div>
         {data?.data?.trial_ends_at && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Trial ends</span>
+            <span className="text-faint">Trial ends</span>
             <span className="font-medium">{data.data.trial_ends_at.slice(0, 10)}</span>
           </div>
         )}
@@ -114,13 +114,13 @@ function LogoCard({ company }: { company?: Company }) {
 
   return (
     <Card className="max-w-xl p-6">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Company Logo</h2>
+      <h2 className="mb-4 text-lg font-semibold text-content">Company Logo</h2>
       <div className="flex items-center gap-4">
-        <div className="flex h-16 w-32 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50">
+        <div className="flex h-16 w-32 items-center justify-center rounded-md border border-dashed border-line bg-muted">
           {preview ? (
             <img src={preview} alt="Company logo" className="max-h-full max-w-full object-contain" />
           ) : (
-            <span className="text-xs text-gray-400">No logo</span>
+            <span className="text-xs text-faint">No logo</span>
           )}
         </div>
         {can('settings.manage') && (
@@ -129,7 +129,7 @@ function LogoCard({ company }: { company?: Company }) {
             <Button type="button" variant="secondary" disabled={uploadMutation.isPending} onClick={() => fileInput.current?.click()}>
               {uploadMutation.isPending ? 'Uploading…' : 'Upload Logo'}
             </Button>
-            <p className="mt-1 text-xs text-gray-400">PNG, JPG, or SVG. Max 2MB. Appears on invoices, statements, and reports.</p>
+            <p className="mt-1 text-xs text-faint">PNG, JPG, or SVG. Max 2MB. Appears on invoices, statements, and reports.</p>
           </div>
         )}
       </div>
@@ -202,7 +202,7 @@ export default function Settings() {
               <Input disabled={!can('settings.manage')} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             </Field>
           </div>
-          <div className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-600">
+          <div className="rounded-md bg-muted px-3 py-2 text-sm text-subtle">
             Plan: <span className="font-medium">{data?.plan?.name ?? '—'}</span> · Status: <span className="font-medium capitalize">{data?.status}</span>
           </div>
           <ErrorText>{error}</ErrorText>

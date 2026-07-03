@@ -22,6 +22,10 @@
     "admin": "Platform Admin",
     "signOut": "Sign out"
   },
+  "theme": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
   "auth": {
     "signInTitle": "Sign in to {{app}}",
     "signInSubtitle": "Cloud accounting for your business",

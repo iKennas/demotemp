@@ -80,7 +80,7 @@ export default function Users() {
           <EmptyState message="No teammates yet." />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
@@ -88,19 +88,19 @@ export default function Users() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={4}>Loading…</td></tr>}
+            <tbody className="divide-y divide-line">
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td></tr>}
               {data?.data.map((u) => (
                 <tr
                   key={u.id}
-                  className={can('users.manage') ? 'cursor-pointer hover:bg-gray-50' : ''}
+                  className={can('users.manage') ? 'cursor-pointer hover:bg-muted' : ''}
                   onClick={() => can('users.manage') && setEditing(u)}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    {u.name} {u.id === me?.id && <span className="text-xs text-gray-400">(you)</span>}
+                  <td className="px-4 py-3 font-medium text-content">
+                    {u.name} {u.id === me?.id && <span className="text-xs text-faint">(you)</span>}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
-                  <td className="px-4 py-3 text-gray-600">{u.roles?.map((r) => r.name).join(', ') ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{u.email}</td>
+                  <td className="px-4 py-3 text-subtle">{u.roles?.map((r) => r.name).join(', ') ?? '—'}</td>
                   <td className="px-4 py-3"><Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? 'Active' : 'Inactive'}</Badge></td>
                 </tr>
               ))}

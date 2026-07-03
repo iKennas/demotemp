@@ -22,6 +22,10 @@
     "admin": "إدارة المنصة",
     "signOut": "تسجيل الخروج"
   },
+  "theme": {
+    "switchToLight": "الوضع الفاتح",
+    "switchToDark": "الوضع الداكن"
+  },
   "auth": {
     "signInTitle": "تسجيل الدخول إلى {{app}}",
     "signInSubtitle": "منصة محاسبية سحابية لعملك",

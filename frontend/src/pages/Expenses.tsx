@@ -60,7 +60,7 @@ export default function Expenses() {
           <EmptyState message="No expenses recorded yet." />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Expense #</th>
                 <th className="px-4 py-3">Account</th>
@@ -70,15 +70,15 @@ export default function Expenses() {
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td></tr>}
+            <tbody className="divide-y divide-line">
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={6}>Loading…</td></tr>}
               {data?.data.map((e) => (
                 <tr key={e.id}>
-                  <td className="px-4 py-3 font-mono text-gray-600">{e.expense_number}</td>
-                  <td className="px-4 py-3 text-gray-900">{e.account?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{e.category ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{e.expense_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{e.amount}</td>
+                  <td className="px-4 py-3 font-mono text-subtle">{e.expense_number}</td>
+                  <td className="px-4 py-3 text-content">{e.account?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{e.category ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{e.expense_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-subtle">{e.amount}</td>
                   <td className="px-4 py-3 text-right">
                     {can('cash.manage') && (
                       <button

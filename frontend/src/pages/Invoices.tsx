@@ -139,7 +139,7 @@ export default function Invoices() {
           <EmptyState message={statusFilter ? 'No invoices with this status.' : 'No invoices yet.'} />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Invoice #</th>
                 <th className="px-4 py-3">Type</th>
@@ -149,19 +149,19 @@ export default function Invoices() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-gray-400" colSpan={6}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={6}>Loading…</td>
                 </tr>
               )}
               {data?.data.map((inv) => (
-                <tr key={inv.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setViewing(inv)}>
-                  <td className="px-4 py-3 font-mono text-gray-600">{inv.invoice_number}</td>
-                  <td className="px-4 py-3 capitalize text-gray-600">{inv.type}</td>
-                  <td className="px-4 py-3 text-gray-900">{inv.customer?.name ?? inv.supplier?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{inv.issue_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{inv.total}</td>
+                <tr key={inv.id} className="cursor-pointer hover:bg-muted" onClick={() => setViewing(inv)}>
+                  <td className="px-4 py-3 font-mono text-subtle">{inv.invoice_number}</td>
+                  <td className="px-4 py-3 capitalize text-subtle">{inv.type}</td>
+                  <td className="px-4 py-3 text-content">{inv.customer?.name ?? inv.supplier?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{inv.issue_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-subtle">{inv.total}</td>
                   <td className="px-4 py-3">
                     <Badge color={statusColor[inv.status]}>{inv.status.replace('_', ' ')}</Badge>
                   </td>
@@ -220,15 +220,15 @@ export default function Invoices() {
                 <div className="col-span-1">
                   <Input type="number" step="0.01" placeholder="Tax%" value={it.tax_rate} onChange={(e) => updateItem(i, { tax_rate: Number(e.target.value) })} />
                 </div>
-                <div className="col-span-1 flex items-center justify-end pr-1 text-sm text-gray-600">{lineTotal(it).toFixed(2)}</div>
+                <div className="col-span-1 flex items-center justify-end pr-1 text-sm text-subtle">{lineTotal(it).toFixed(2)}</div>
               </div>
             ))}
-            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="text-xs font-medium text-indigo-600 hover:underline">
+            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="text-xs font-medium text-accent hover:underline">
               + Add item
             </button>
           </div>
 
-          <div className="flex justify-end border-t border-gray-200 pt-3 text-base font-semibold text-gray-900">Total: {total.toFixed(2)}</div>
+          <div className="flex justify-end border-t border-line pt-3 text-base font-semibold text-content">Total: {total.toFixed(2)}</div>
 
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
@@ -249,19 +249,19 @@ export default function Invoices() {
         {viewing && (
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Status</span>
+              <span className="text-faint">Status</span>
               <Badge color={statusColor[viewing.status]}>{viewing.status.replace('_', ' ')}</Badge>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Party</span>
+              <span className="text-faint">Party</span>
               <span>{viewing.customer?.name ?? viewing.supplier?.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Subtotal</span>
+              <span className="text-faint">Subtotal</span>
               <span>{viewing.subtotal}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Tax</span>
+              <span className="text-faint">Tax</span>
               <span>{viewing.tax_total}</span>
             </div>
             <div className="flex justify-between font-semibold">
@@ -269,12 +269,12 @@ export default function Invoices() {
               <span>{viewing.total}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Paid</span>
+              <span className="text-faint">Paid</span>
               <span>{viewing.paid_amount}</span>
             </div>
             {viewing.zatca_qr_code && (
-              <div className="rounded-md bg-gray-50 p-2 text-xs text-gray-500">
-                <p className="font-medium text-gray-700">ZATCA QR (base64 TLV)</p>
+              <div className="rounded-md bg-muted p-2 text-xs text-faint">
+                <p className="font-medium text-subtle">ZATCA QR (base64 TLV)</p>
                 <p className="break-all">{viewing.zatca_qr_code}</p>
               </div>
             )}
@@ -320,7 +320,7 @@ export default function Invoices() {
                     </Button>
                   )}
                 </div>
-                {emailStatus && <p className="text-xs text-gray-500">{emailStatus}</p>}
+                {emailStatus && <p className="text-xs text-faint">{emailStatus}</p>}
               </div>
             )}
             <ErrorText>{error}</ErrorText>

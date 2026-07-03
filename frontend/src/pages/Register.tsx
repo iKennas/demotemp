@@ -37,10 +37,15 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-app px-4 py-10">
       <Card className="w-full max-w-md p-8">
-        <h1 className="mb-1 text-xl font-semibold text-gray-900">{t('auth.registerTitle')}</h1>
-        <p className="mb-6 text-sm text-gray-500">{t('auth.registerSubtitle')}</p>
+        <div className="mb-6 flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-base font-bold text-white">U</span>
+          <div>
+            <h1 className="text-lg font-semibold leading-tight text-content">{t('auth.registerTitle')}</h1>
+            <p className="text-sm leading-tight text-faint">{t('auth.registerSubtitle')}</p>
+          </div>
+        </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <Field label={t('auth.companyName')}>
             <Input required value={form.company_name} onChange={set('company_name')} />
@@ -67,9 +72,9 @@ export default function Register() {
             {submitting ? t('auth.creatingAccount') : t('auth.createAccount')}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-faint">
           {t('auth.haveAccount')}{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/login" className="font-medium text-accent hover:underline">
             {t('auth.signInLink')}
           </Link>
         </p>

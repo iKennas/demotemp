@@ -44,11 +44,11 @@ export default function AuditLog() {
         }
       />
       <Card>
-        {isLoading && <p className="p-6 text-sm text-gray-400">Loading…</p>}
+        {isLoading && <p className="p-6 text-sm text-faint">Loading…</p>}
         {!isLoading && data?.data.length === 0 && <EmptyState message="No activity yet. Changes made in this company will show up here." />}
         {!isLoading && data && data.data.length > 0 && (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">When</th>
                 <th className="px-4 py-3">User</th>
@@ -57,16 +57,16 @@ export default function AuditLog() {
                 <th className="px-4 py-3">Description</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line">
               {data.data.map((log) => (
                 <tr key={log.id}>
-                  <td className="whitespace-nowrap px-4 py-3 text-gray-600">{log.created_at.slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-4 py-3 text-gray-600">{log.user?.name ?? 'System'}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-subtle">{log.created_at.slice(0, 19).replace('T', ' ')}</td>
+                  <td className="px-4 py-3 text-subtle">{log.user?.name ?? 'System'}</td>
                   <td className="px-4 py-3">
                     <Badge color={actionColor[log.action] ?? 'gray'}>{log.action}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{modelLabel(log.auditable_type)} #{log.auditable_id}</td>
-                  <td className="px-4 py-3 text-gray-900">{log.description}</td>
+                  <td className="px-4 py-3 text-subtle">{modelLabel(log.auditable_type)} #{log.auditable_id}</td>
+                  <td className="px-4 py-3 text-content">{log.description}</td>
                 </tr>
               ))}
             </tbody>

@@ -95,7 +95,7 @@ export default function Products() {
           <EmptyState message={search ? 'No products match your search.' : 'No products yet.'} />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Type</th>
@@ -104,20 +104,20 @@ export default function Products() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={5}>Loading…</td>
                 </tr>
               )}
               {data?.data.map((p) => {
                 const low = p.track_inventory && p.reorder_level !== null && Number(p.quantity_on_hand) <= Number(p.reorder_level)
                 return (
-                  <tr key={p.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(p)}>
-                    <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                    <td className="px-4 py-3 capitalize text-gray-600">{p.type}</td>
-                    <td className="px-4 py-3 text-gray-600">{p.sale_price}</td>
-                    <td className="px-4 py-3 text-gray-600">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
+                  <tr key={p.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(p)}>
+                    <td className="px-4 py-3 font-medium text-content">{p.name}</td>
+                    <td className="px-4 py-3 capitalize text-subtle">{p.type}</td>
+                    <td className="px-4 py-3 text-subtle">{p.sale_price}</td>
+                    <td className="px-4 py-3 text-subtle">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
                     <td className="px-4 py-3">
                       {low ? <Badge color="red">Low stock</Badge> : <Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>}
                     </td>
@@ -206,8 +206,8 @@ export default function Products() {
             </form>
 
             {editing.track_inventory && can('inventory.manage') && (
-              <div className="border-t border-gray-200 pt-4">
-                <p className="mb-2 text-sm font-medium text-gray-700">Adjust Stock (currently {editing.quantity_on_hand})</p>
+              <div className="border-t border-line pt-4">
+                <p className="mb-2 text-sm font-medium text-subtle">Adjust Stock (currently {editing.quantity_on_hand})</p>
                 <div className="flex gap-2">
                   <Select value={adjustType} onChange={(e) => setAdjustType(e.target.value as 'in' | 'out')} className="w-28">
                     <option value="in">Add</option>

@@ -100,7 +100,7 @@ export default function JournalEntries() {
           <EmptyState message="No journal entries yet." />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Entry #</th>
                 <th className="px-4 py-3">Date</th>
@@ -111,26 +111,26 @@ export default function JournalEntries() {
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-gray-400" colSpan={7}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={7}>Loading…</td>
                 </tr>
               )}
               {data?.data.map((je) => (
                 <tr key={je.id}>
-                  <td className="px-4 py-3 font-mono text-gray-600">{je.entry_number}</td>
-                  <td className="px-4 py-3 text-gray-600">{je.entry_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-gray-900">{je.description ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{je.total_debit}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{je.total_credit}</td>
+                  <td className="px-4 py-3 font-mono text-subtle">{je.entry_number}</td>
+                  <td className="px-4 py-3 text-subtle">{je.entry_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-content">{je.description ?? '—'}</td>
+                  <td className="px-4 py-3 text-right text-subtle">{je.total_debit}</td>
+                  <td className="px-4 py-3 text-right text-subtle">{je.total_credit}</td>
                   <td className="px-4 py-3">
                     <Badge color={statusColor[je.status]}>{je.status}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right space-x-2">
                     {can('finance.manage') && je.status === 'draft' && (
                       <>
-                        <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-indigo-600 hover:underline">
+                        <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-accent hover:underline">
                           Post
                         </button>
                         <button
@@ -192,14 +192,14 @@ export default function JournalEntries() {
                 </div>
                 <div className="col-span-1 flex items-center justify-center">
                   {lines.length > 2 && (
-                    <button type="button" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+                    <button type="button" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))} className="text-faint hover:text-red-600">
                       ✕
                     </button>
                   )}
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-indigo-600 hover:underline">
+            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-accent hover:underline">
               + Add line
             </button>
           </div>

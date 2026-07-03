@@ -104,7 +104,7 @@ export default function Customers() {
           <EmptyState message={search ? 'No customers match your search.' : 'No customers yet.'} />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Type</th>
@@ -113,18 +113,18 @@ export default function Customers() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-gray-400" colSpan={5}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={5}>Loading…</td>
                 </tr>
               )}
               {data?.data.map((c) => (
-                <tr key={c.id} className="cursor-pointer hover:bg-gray-50" onClick={() => setEditing(c)}>
-                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-                  <td className="px-4 py-3 capitalize text-gray-600">{c.type}</td>
-                  <td className="px-4 py-3 text-gray-600">{c.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{c.phone ?? '—'}</td>
+                <tr key={c.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(c)}>
+                  <td className="px-4 py-3 font-medium text-content">{c.name}</td>
+                  <td className="px-4 py-3 capitalize text-subtle">{c.type}</td>
+                  <td className="px-4 py-3 text-subtle">{c.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{c.phone ?? '—'}</td>
                   <td className="px-4 py-3">
                     <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge>
                   </td>
@@ -204,7 +204,7 @@ export default function Customers() {
         ) : (
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-indigo-600 hover:underline">
+              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent hover:underline">
                 ← Back to details
               </button>
               <Button
@@ -215,15 +215,15 @@ export default function Customers() {
                 Download PDF
               </Button>
             </div>
-            {statementLoading && <p className="text-sm text-gray-400">Loading…</p>}
+            {statementLoading && <p className="text-sm text-faint">Loading…</p>}
             {statement && (
               <div className="text-sm">
-                <div className="mb-2 flex justify-between text-gray-500">
+                <div className="mb-2 flex justify-between text-faint">
                   <span>Opening balance</span>
                   <span>{fmt(statement.opening_balance)}</span>
                 </div>
                 <table className="w-full text-left">
-                  <thead className="border-b border-gray-200 text-xs uppercase text-gray-500">
+                  <thead className="border-b border-line text-xs uppercase text-faint">
                     <tr>
                       <th className="py-1">Date</th>
                       <th className="py-1">Ref</th>
@@ -231,7 +231,7 @@ export default function Customers() {
                       <th className="py-1 text-right">Balance</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-line">
                     {statement.data.map((line, i) => (
                       <tr key={i}>
                         <td className="py-1.5">{line.date.slice(0, 10)}</td>
@@ -242,7 +242,7 @@ export default function Customers() {
                     ))}
                   </tbody>
                 </table>
-                <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-semibold">
+                <div className="mt-2 flex justify-between border-t border-line pt-2 font-semibold">
                   <span>Closing balance</span>
                   <span>{fmt(statement.closing_balance)}</span>
                 </div>

@@ -70,7 +70,7 @@ export default function Payments() {
           <EmptyState message="No payments recorded yet." />
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
                 <th className="px-4 py-3">Payment #</th>
                 <th className="px-4 py-3">Direction</th>
@@ -81,16 +81,16 @@ export default function Payments() {
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading && <tr><td className="px-4 py-6 text-gray-400" colSpan={7}>Loading…</td></tr>}
+            <tbody className="divide-y divide-line">
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={7}>Loading…</td></tr>}
               {data?.data.map((p) => (
                 <tr key={p.id}>
-                  <td className="px-4 py-3 font-mono text-gray-600">{p.payment_number}</td>
+                  <td className="px-4 py-3 font-mono text-subtle">{p.payment_number}</td>
                   <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? 'Received' : 'Paid'}</Badge></td>
-                  <td className="px-4 py-3 text-gray-900">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{p.payment_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{p.amount}</td>
-                  <td className="px-4 py-3 capitalize text-gray-600">{p.method}</td>
+                  <td className="px-4 py-3 text-content">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-subtle">{p.payment_date?.slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-right text-subtle">{p.amount}</td>
+                  <td className="px-4 py-3 capitalize text-subtle">{p.method}</td>
                   <td className="px-4 py-3 text-right">
                     {can('cash.manage') && (
                       <button

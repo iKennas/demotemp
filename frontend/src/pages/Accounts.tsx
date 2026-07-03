@@ -45,7 +45,7 @@ export default function Accounts() {
       />
       <Card>
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+          <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
             <tr>
               <th className="px-4 py-3">Code</th>
               <th className="px-4 py-3">Name</th>
@@ -53,22 +53,22 @@ export default function Accounts() {
               <th className="px-4 py-3">Normal Balance</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line">
             {isLoading && (
               <tr>
-                <td className="px-4 py-6 text-gray-400" colSpan={4}>Loading…</td>
+                <td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td>
               </tr>
             )}
             {data?.map((a) => (
               <tr key={a.id}>
-                <td className="px-4 py-3 font-mono text-gray-600">{a.code}</td>
-                <td className="px-4 py-3 font-medium text-gray-900">
-                  {a.name} {a.is_system && <span className="ml-1 text-xs text-gray-400">(system)</span>}
+                <td className="px-4 py-3 font-mono text-subtle">{a.code}</td>
+                <td className="px-4 py-3 font-medium text-content">
+                  {a.name} {a.is_system && <span className="ml-1 text-xs text-faint">(system)</span>}
                 </td>
                 <td className="px-4 py-3">
                   <Badge color={typeColors[a.type]}>{a.type}</Badge>
                 </td>
-                <td className="px-4 py-3 capitalize text-gray-600">{a.normal_balance}</td>
+                <td className="px-4 py-3 capitalize text-subtle">{a.normal_balance}</td>
               </tr>
             ))}
           </tbody>
