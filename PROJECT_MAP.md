@@ -2,7 +2,7 @@
 
 > **Purpose of this file:** single source of truth for where the project stands.
 > Read this first when starting a new chat session. Update the "Done" / "Next"
-> sections as work progresses. Last updated: **2026-07-03**.
+> sections as work progresses. Last updated: **2026-07-03** (PDF polish + QR fix pass).
 
 URS is a **multi-tenant SaaS cloud accounting platform** for the Saudi market,
 built from the spec in `الدراسة الفنية والتقنية.pdf` (Arabic technical study).
@@ -105,16 +105,34 @@ This machine required manual setup that a fresh clone will also need:
 ### Frontend
 - Auth (login/register), token in localStorage, 401 auto-redirect.
 - Permission-aware sidebar (hides what the user can't access).
-- Pages: Dashboard, Chart of Accounts, Journal Entries, Reports (3 tabs),
-  Customers (+edit +statement), Suppliers (+edit +statement), Invoices
-  (+send +PDF +email), Payments, Expenses, Revenues, Bank Accounts,
-  Products (+edit +stock adjust), Team, Company Settings (+billing card),
-  Platform Admin.
+- Pages: Dashboard, Chart of Accounts, Journal Entries, Reports (3 tabs +
+  PDF export), Customers (+edit +delete +statement +statement PDF),
+  Suppliers (+edit +delete +statement +statement PDF), Invoices (+send
+  +PDF +email +void +delete +status filter), Payments (+delete), Expenses
+  (+delete), Revenues (+delete), Bank Accounts (+edit +delete +balance
+  view), Products (+edit +stock adjust), Journal Entries (+void +delete),
+  Team/Users (+edit role/status +remove), Company Settings (+logo upload
+  +billing card), Platform Admin.
+- **Pagination, search, and empty states** on every list page via shared
+  `Pagination` / `EmptyState` / `Spinner` components in `components/ui.tsx`.
+- **Dashboard depth:** consolidated `/dashboard/summary` endpoint (permission-
+  gated per section) backing a recharts `ComposedChart` (6-month revenue vs.
+  expense trend) plus widget cards for overdue invoices, low stock, recent
+  invoices, recent payments.
+- **i18n / RTL:** `react-i18next` with English + Arabic locale files
+  (`src/i18n/locales/{en,ar}.json`), language switcher in the sidebar footer,
+  automatic `dir="rtl"` + mirrored layout when Arabic is active, persisted to
+  localStorage. Layout, Login, Register, Dashboard fully translated.
+- **Company logo:** upload UI in Settings (multipart upload, live preview via
+  an authenticated `GET /company/logo` blob endpoint since the storage disk
+  is private), shown on invoices/statements/reports PDFs.
 
 ### Tests
-- 7 feature tests, all passing (`php artisan test`):
+- **23 feature tests, all passing** (`php artisan test`, 174 assertions):
   full invoice→payment→reports flow with balance assertions, journal-entry
-  balance validation, tenant isolation, role-permission enforcement.
+  balance validation, tenant isolation, role-permission enforcement,
+  recurring invoices, low-stock alerts, statements, expenses/revenues
+  posting, invoice PDF generation, dashboard summary.
 
 ### Storage / integrations configured (env placeholders, not live)
 - Cloudflare R2 (S3-compatible) disk `r2` for invoices/attachments/backups.
@@ -137,22 +155,43 @@ This machine required manual setup that a fresh clone will also need:
   succeed and the app still serves correctly with them active (a common
   source of prod-only breakage) — cleared back to dev mode afterward.
 
+### PDF polish (2026-07-03)
+- **Company logo:** upload endpoint (`POST /company/logo`), authenticated
+  preview endpoint (`GET /company/logo`), shown on invoices + statements +
+  reports via a shared `PdfLogoResolver` service (downloads from whatever
+  disk is configured — local or R2 — into a local temp file, since dompdf
+  needs a filesystem path).
+- **Report PDF exports:** trial balance, P&L, balance sheet — each a new
+  `/reports/.../pdf` endpoint reusing the same data-computation methods as
+  the JSON endpoints (`ReportController` refactored to extract
+  `trialBalanceData()` / `profitAndLossData()` / `balanceSheetData()`).
+- **Statement PDF exports:** `GET /customers/{id}/statement/pdf` and
+  `GET /suppliers/{id}/statement/pdf`, same pattern.
+- **Frontend:** "Download PDF" buttons on the Reports page and on the
+  customer/supplier statement view; logo upload card on Settings with a live
+  preview.
+- **Fixed the long-standing "QR renders blank in PDF" bug** (previously
+  documented as a suspected dev-server-only quirk, deferred to re-verify
+  post-deployment). Actual root cause: `endroid/qr-code`'s `PngWriter`
+  outputs a **palette/indexed-color PNG**, which dompdf silently fails to
+  rasterize in this environment — confirmed by a side-by-side test embedding
+  both a palette and a truecolor PNG in the same PDF (palette → blank,
+  truecolor → renders). Fixed in `InvoicePdfService::render()` by converting
+  the QR image to truecolor via GD before writing it to disk. Verified via
+  PyMuPDF-rendered screenshots that both the logo and the QR code now show up
+  correctly in generated PDFs. **This was not an environment-only issue —
+  it would have shipped broken to production too.**
+
 ---
 
 ## 4. KNOWN LIMITATIONS / DEFERRED ⚠️
 
-1. **ZATCA QR image in the PDF** renders blank under `php artisan serve`
-   (PHP built-in dev server) on this Windows box. The QR **data** is always
-   stored correctly on the invoice (`zatca_qr_code`) — only the image embed in
-   the PDF is affected, and only under this SAPI. Works under CLI/tinker.
-   → **Re-verify once deployed behind php-fpm** (production target). See the
-   long note in `backend/app/Services/InvoicePdfService.php`.
-2. **Moyasar payments** are scaffolded to the documented API shape but never
+1. **Moyasar payments** are scaffolded to the documented API shape but never
    run against a live/sandbox account. Field names + webhook payload shape must
    be re-checked against Moyasar's dashboard when real keys are added.
-3. **ZATCA Phase 2** (cryptographic stamping, XML invoice, clearance API) is out
+2. **ZATCA Phase 2** (cryptographic stamping, XML invoice, clearance API) is out
    of scope — only Phase-1 simplified QR is implemented.
-4. **VAT** is netted through a single `VAT Payable` account for both input and
+3. **VAT** is netted through a single `VAT Payable` account for both input and
    output tax (small-business simplification, not split input/output).
 
 ---
@@ -169,19 +208,11 @@ This machine required manual setup that a fresh clone will also need:
    this step is now blocked on the user provisioning external accounts, not
    on more prep work.
 2. **Wire real Moyasar sandbox keys** and verify the checkout + webhook loop
-   end-to-end; fix any field-name mismatches (limitation #2). Best done after
+   end-to-end; fix any field-name mismatches (limitation #1). Best done after
    deployment (needs a real callback URL).
-3. **Expand test coverage** — recurring invoices, low-stock command, statements,
-   PDF generation, expenses/revenues posting. Currently only 7 tests.
-4. **Frontend polish** — edit/delete UI for remaining modules (journal entries
-   detail, bank accounts, users edit/deactivate), loading/error states,
-   pagination controls, empty-state illustrations.
-5. **Dashboard depth** — charts (cash flow, revenue trend), recent activity,
-   overdue-invoice widget, low-stock widget.
-6. **Arabic / RTL** — the spec is Arabic; add i18n + RTL layout support.
-7. **Invoice/report PDF polish** — company logo, better statement PDF export,
-   downloadable report PDFs.
-8. **Audit log** — track who changed what (useful for accounting compliance).
+3. **Audit log** — track who changed what (useful for accounting compliance).
+   Not yet started; next code-side task to pick up regardless of deployment
+   status.
 
 ---
 
@@ -200,3 +231,9 @@ This machine required manual setup that a fresh clone will also need:
 - Bank accounts each auto-provision their own asset ledger account (codes 13xx).
 - Starter chart of accounts codes are defined in `ChartOfAccountsSeeder` and
   relied on by name by `JournalPostingService`.
+- **Images embedded in dompdf PDFs must be truecolor PNGs, not palette/
+  indexed-color PNGs** — dompdf silently renders palette PNGs blank in this
+  environment. Any new PDF feature that embeds a generated image (not a
+  user-uploaded photo) should convert it via GD (`imagecreatetruecolor` +
+  `imagecopy`) before writing it to the temp file, same as
+  `InvoicePdfService::render()` does for the QR code.
