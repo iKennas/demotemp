@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount } from '../types'
@@ -11,6 +12,7 @@ const emptyEdit = { account_name: '', bank_name: '', account_number: '', iban: '
 
 export default function BankAccounts() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -82,22 +84,22 @@ export default function BankAccounts() {
 
   return (
     <div>
-      <PageHeader title="Bank Accounts" action={can('cash.manage') && <Button onClick={() => setOpen(true)}>+ New Bank Account</Button>} />
+      <PageHeader title={t('bankAccounts.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('bankAccounts.newBankAccount')}</Button>} />
       <Card>
         {(!data || data.length === 0) && !isLoading ? (
-          <EmptyState message="No bank accounts yet." />
+          <EmptyState message={t('bankAccounts.emptyMessage')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Account Name</th>
-                <th className="px-4 py-3">Bank</th>
-                <th className="px-4 py-3">Account Number</th>
-                <th className="px-4 py-3">IBAN</th>
+                <th className="px-4 py-3">{t('bankAccounts.colAccountName')}</th>
+                <th className="px-4 py-3">{t('bankAccounts.colBank')}</th>
+                <th className="px-4 py-3">{t('bankAccounts.colAccountNumber')}</th>
+                <th className="px-4 py-3">{t('bankAccounts.colIban')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td></tr>}
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
               {data?.map((b) => (
                 <tr key={b.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(b)}>
                   <td className="px-4 py-3 font-medium text-content">{b.account_name}</td>
@@ -111,26 +113,26 @@ export default function BankAccounts() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Bank Account">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('bankAccounts.newBankAccountModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Account Name">
+          <Field label={t('bankAccounts.accountName')}>
             <Input required value={form.account_name} onChange={(e) => setForm({ ...form, account_name: e.target.value })} />
           </Field>
-          <Field label="Bank Name">
+          <Field label={t('bankAccounts.bankName')}>
             <Input required value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} />
           </Field>
-          <Field label="Account Number">
+          <Field label={t('bankAccounts.accountNumber')}>
             <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} />
           </Field>
-          <Field label="IBAN">
+          <Field label={t('bankAccounts.iban')}>
             <Input value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value })} />
           </Field>
-          <Field label="Opening Balance">
+          <Field label={t('bankAccounts.openingBalance')}>
             <Input type="number" step="0.01" value={form.opening_balance} onChange={(e) => setForm({ ...form, opening_balance: e.target.value })} />
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Bank Account'}
+            {createMutation.isPending ? t('common.saving') : t('bankAccounts.saveBankAccount')}
           </Button>
         </form>
       </Modal>
@@ -140,40 +142,40 @@ export default function BankAccounts() {
           <form onSubmit={onEditSubmit} className="space-y-4">
             {detail && (
               <div className="rounded-md bg-muted px-3 py-2 text-sm text-subtle">
-                Current balance: <span className="font-medium text-content">{fmt(detail.balance)}</span>
+                {t('bankAccounts.currentBalance')} <span className="font-medium text-content">{fmt(detail.balance)}</span>
               </div>
             )}
-            <Field label="Account Name">
+            <Field label={t('bankAccounts.accountName')}>
               <Input required value={editForm.account_name} onChange={(e) => setEditForm({ ...editForm, account_name: e.target.value })} disabled={!can('cash.manage')} />
             </Field>
-            <Field label="Bank Name">
+            <Field label={t('bankAccounts.bankName')}>
               <Input required value={editForm.bank_name} onChange={(e) => setEditForm({ ...editForm, bank_name: e.target.value })} disabled={!can('cash.manage')} />
             </Field>
-            <Field label="Account Number">
+            <Field label={t('bankAccounts.accountNumber')}>
               <Input value={editForm.account_number} onChange={(e) => setEditForm({ ...editForm, account_number: e.target.value })} disabled={!can('cash.manage')} />
             </Field>
-            <Field label="IBAN">
+            <Field label={t('bankAccounts.iban')}>
               <Input value={editForm.iban} onChange={(e) => setEditForm({ ...editForm, iban: e.target.value })} disabled={!can('cash.manage')} />
             </Field>
-            <Field label="Status">
+            <Field label={t('bankAccounts.status')}>
               <Select value={editForm.is_active ? '1' : '0'} onChange={(e) => setEditForm({ ...editForm, is_active: e.target.value === '1' })} disabled={!can('cash.manage')}>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="1">{t('status.active')}</option>
+                <option value="0">{t('status.inactive')}</option>
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
             {can('cash.manage') && (
               <div className="flex gap-2">
                 <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
-                  {updateMutation.isPending ? 'Saving…' : 'Save Changes'}
+                  {updateMutation.isPending ? t('common.saving') : t('bankAccounts.saveChanges')}
                 </Button>
                 <Button
                   type="button"
                   variant="danger"
                   disabled={deleteMutation.isPending}
-                  onClick={() => confirm('Delete this bank account?') && deleteMutation.mutate()}
+                  onClick={() => confirm(t('bankAccounts.deleteConfirm')) && deleteMutation.mutate()}
                 >
-                  Delete
+                  {t('bankAccounts.delete')}
                 </Button>
               </div>
             )}

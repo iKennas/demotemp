@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
@@ -19,6 +20,7 @@ const empty = { account_id: '', category: '', amount: '', expense_date: new Date
 
 export default function Expenses() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -54,24 +56,24 @@ export default function Expenses() {
 
   return (
     <div>
-      <PageHeader title="Expenses" action={can('cash.manage') && <Button onClick={() => setOpen(true)}>+ Record Expense</Button>} />
+      <PageHeader title={t('expenses.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('expenses.recordExpense')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message="No expenses recorded yet." />
+          <EmptyState message={t('expenses.emptyMessage')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Expense #</th>
-                <th className="px-4 py-3">Account</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3">{t('expenses.colExpenseNumber')}</th>
+                <th className="px-4 py-3">{t('expenses.colAccount')}</th>
+                <th className="px-4 py-3">{t('expenses.colCategory')}</th>
+                <th className="px-4 py-3">{t('expenses.colDate')}</th>
+                <th className="px-4 py-3 text-right">{t('expenses.colAmount')}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={6}>Loading…</td></tr>}
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={6}>{t('common.loading')}</td></tr>}
               {data?.data.map((e) => (
                 <tr key={e.id}>
                   <td className="px-4 py-3 font-mono text-subtle">{e.expense_number}</td>
@@ -82,10 +84,10 @@ export default function Expenses() {
                   <td className="px-4 py-3 text-right">
                     {can('cash.manage') && (
                       <button
-                        onClick={() => confirm('Delete this expense? This reverses its journal entry.') && deleteMutation.mutate(e.id)}
+                        onClick={() => confirm(t('expenses.deleteConfirm')) && deleteMutation.mutate(e.id)}
                         className="text-xs font-medium text-red-600 hover:underline"
                       >
-                        Delete
+                        {t('expenses.delete')}
                       </button>
                     )}
                   </td>
@@ -99,31 +101,31 @@ export default function Expenses() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Record Expense">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('expenses.recordExpenseModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Expense Account">
+          <Field label={t('expenses.expenseAccount')}>
             <Select required value={form.account_id} onChange={(e) => setForm({ ...form, account_id: e.target.value })}>
-              <option value="">Select…</option>
+              <option value="">{t('common.select')}</option>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
             </Select>
           </Field>
-          <Field label="Category">
+          <Field label={t('expenses.category')}>
             <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Amount">
+            <Field label={t('expenses.amount')}>
               <Input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </Field>
-            <Field label="Date">
+            <Field label={t('expenses.date')}>
               <Input type="date" required value={form.expense_date} onChange={(e) => setForm({ ...form, expense_date: e.target.value })} />
             </Field>
           </div>
-          <Field label="Description">
+          <Field label={t('expenses.description')}>
             <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Expense'}
+            {createMutation.isPending ? t('common.saving') : t('expenses.saveExpense')}
           </Button>
         </form>
       </Modal>

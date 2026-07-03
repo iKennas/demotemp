@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export function Button({
   variant = 'primary',
@@ -59,6 +60,7 @@ export function Badge({ children, color = 'gray' }: { children: ReactNode; color
 }
 
 export function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  const { t } = useTranslation()
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={onClose}>
@@ -68,7 +70,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-content">{title}</h2>
-          <button onClick={onClose} className="rounded-md p-1 text-faint transition-colors hover:bg-muted hover:text-content" aria-label="Close">
+          <button onClick={onClose} className="rounded-md p-1 text-faint transition-colors hover:bg-muted hover:text-content" aria-label={t('common.close')}>
             ✕
           </button>
         </div>
@@ -119,6 +121,7 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, lastPage, total, perPage, onPageChange }: PaginationProps) {
+  const { t } = useTranslation()
   if (lastPage <= 1) return null
 
   const from = (currentPage - 1) * perPage + 1
@@ -126,18 +129,14 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
 
   return (
     <div className="flex items-center justify-between border-t border-line px-4 py-3 text-sm text-subtle">
-      <span>
-        Showing {from}–{to} of {total}
-      </span>
+      <span>{t('pagination.showing', { from, to, total })}</span>
       <div className="flex items-center gap-2">
         <Button variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
-          ← Prev
+          {t('pagination.prev')}
         </Button>
-        <span className="px-2 text-faint">
-          Page {currentPage} of {lastPage}
-        </span>
+        <span className="px-2 text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
         <Button variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
-          Next →
+          {t('pagination.next')}
         </Button>
       </div>
     </div>

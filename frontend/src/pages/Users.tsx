@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, User } from '../types'
@@ -12,6 +13,7 @@ const emptyEdit = { name: '', is_active: true, role: 'Employee' }
 
 export default function Users() {
   const { can, user: me } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -74,22 +76,22 @@ export default function Users() {
 
   return (
     <div>
-      <PageHeader title="Team" action={can('users.manage') && <Button onClick={() => setOpen(true)}>+ Invite Teammate</Button>} />
+      <PageHeader title={t('users.pageTitle')} action={can('users.manage') && <Button onClick={() => setOpen(true)}>{t('users.inviteTeammate')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message="No teammates yet." />
+          <EmptyState message={t('users.emptyMessage')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t('users.colName')}</th>
+                <th className="px-4 py-3">{t('users.colEmail')}</th>
+                <th className="px-4 py-3">{t('users.colRole')}</th>
+                <th className="px-4 py-3">{t('users.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td></tr>}
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
               {data?.data.map((u) => (
                 <tr
                   key={u.id}
@@ -97,11 +99,11 @@ export default function Users() {
                   onClick={() => can('users.manage') && setEditing(u)}
                 >
                   <td className="px-4 py-3 font-medium text-content">
-                    {u.name} {u.id === me?.id && <span className="text-xs text-faint">(you)</span>}
+                    {u.name} {u.id === me?.id && <span className="text-xs text-faint">{t('users.you')}</span>}
                   </td>
                   <td className="px-4 py-3 text-subtle">{u.email}</td>
                   <td className="px-4 py-3 text-subtle">{u.roles?.map((r) => r.name).join(', ') ?? '—'}</td>
-                  <td className="px-4 py-3"><Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? 'Active' : 'Inactive'}</Badge></td>
+                  <td className="px-4 py-3"><Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
                 </tr>
               ))}
             </tbody>
@@ -112,25 +114,25 @@ export default function Users() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Invite Teammate">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('users.inviteModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Name">
+          <Field label={t('fields.name')}>
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </Field>
-          <Field label="Email">
+          <Field label={t('fields.email')}>
             <Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </Field>
-          <Field label="Temporary Password">
+          <Field label={t('users.temporaryPassword')}>
             <Input type="password" required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           </Field>
-          <Field label="Role">
+          <Field label={t('users.role')}>
             <Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
               {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </Select>
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Inviting…' : 'Invite'}
+            {createMutation.isPending ? t('users.inviting') : t('users.invite')}
           </Button>
         </form>
       </Modal>
@@ -138,33 +140,33 @@ export default function Users() {
       <Modal open={!!editing} onClose={() => { setEditing(null); setError('') }} title={editing?.name ?? ''}>
         {editing && (
           <form onSubmit={onEditSubmit} className="space-y-4">
-            <Field label="Name">
+            <Field label={t('fields.name')}>
               <Input required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
             </Field>
-            <Field label="Role">
+            <Field label={t('users.role')}>
               <Select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}>
                 {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
               </Select>
             </Field>
-            <Field label="Status">
+            <Field label={t('fields.status')}>
               <Select value={editForm.is_active ? '1' : '0'} onChange={(e) => setEditForm({ ...editForm, is_active: e.target.value === '1' })}>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="1">{t('status.active')}</option>
+                <option value="0">{t('status.inactive')}</option>
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
             <div className="flex gap-2">
               <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
-                {updateMutation.isPending ? 'Saving…' : 'Save Changes'}
+                {updateMutation.isPending ? t('common.saving') : t('users.saveChanges')}
               </Button>
               {editing.id !== me?.id && (
                 <Button
                   type="button"
                   variant="danger"
                   disabled={removeMutation.isPending}
-                  onClick={() => confirm(`Remove ${editing.name} from the company?`) && removeMutation.mutate()}
+                  onClick={() => confirm(t('users.removeConfirm', { name: editing.name })) && removeMutation.mutate()}
                 >
-                  Remove
+                  {t('users.remove')}
                 </Button>
               )}
             </div>

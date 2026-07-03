@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount, Customer, Paginated, Supplier } from '../types'
@@ -21,6 +22,7 @@ const empty = { direction: 'in', customer_id: '', supplier_id: '', bank_account_
 
 export default function Payments() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -64,29 +66,29 @@ export default function Payments() {
 
   return (
     <div>
-      <PageHeader title="Payments" action={can('cash.manage') && <Button onClick={() => setOpen(true)}>+ Record Payment</Button>} />
+      <PageHeader title={t('payments.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('payments.recordPayment')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message="No payments recorded yet." />
+          <EmptyState message={t('payments.emptyMessage')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Payment #</th>
-                <th className="px-4 py-3">Direction</th>
-                <th className="px-4 py-3">Party</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3 text-right">Amount</th>
-                <th className="px-4 py-3">Method</th>
+                <th className="px-4 py-3">{t('payments.colPaymentNumber')}</th>
+                <th className="px-4 py-3">{t('payments.colDirection')}</th>
+                <th className="px-4 py-3">{t('payments.colParty')}</th>
+                <th className="px-4 py-3">{t('payments.colDate')}</th>
+                <th className="px-4 py-3 text-right">{t('payments.colAmount')}</th>
+                <th className="px-4 py-3">{t('payments.colMethod')}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={7}>Loading…</td></tr>}
+              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={7}>{t('common.loading')}</td></tr>}
               {data?.data.map((p) => (
                 <tr key={p.id}>
                   <td className="px-4 py-3 font-mono text-subtle">{p.payment_number}</td>
-                  <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? 'Received' : 'Paid'}</Badge></td>
+                  <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? t('payments.received') : t('payments.paid')}</Badge></td>
                   <td className="px-4 py-3 text-content">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
                   <td className="px-4 py-3 text-subtle">{p.payment_date?.slice(0, 10)}</td>
                   <td className="px-4 py-3 text-right text-subtle">{p.amount}</td>
@@ -94,10 +96,10 @@ export default function Payments() {
                   <td className="px-4 py-3 text-right">
                     {can('cash.manage') && (
                       <button
-                        onClick={() => confirm('Delete this payment? This reverses its journal entry.') && deleteMutation.mutate(p.id)}
+                        onClick={() => confirm(t('payments.deleteConfirm')) && deleteMutation.mutate(p.id)}
                         className="text-xs font-medium text-red-600 hover:underline"
                       >
-                        Delete
+                        {t('payments.delete')}
                       </button>
                     )}
                   </td>
@@ -111,46 +113,46 @@ export default function Payments() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Record Payment">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('payments.recordPaymentModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Direction">
+          <Field label={t('payments.direction')}>
             <Select value={form.direction} onChange={(e) => setForm({ ...form, direction: e.target.value })}>
-              <option value="in">Received from customer</option>
-              <option value="out">Paid to supplier</option>
+              <option value="in">{t('payments.receivedFromCustomer')}</option>
+              <option value="out">{t('payments.paidToSupplier')}</option>
             </Select>
           </Field>
           {form.direction === 'in' ? (
-            <Field label="Customer">
+            <Field label={t('payments.customer')}>
               <Select value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })}>
-                <option value="">Select…</option>
+                <option value="">{t('common.select')}</option>
                 {customers?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
             </Field>
           ) : (
-            <Field label="Supplier">
+            <Field label={t('payments.supplier')}>
               <Select value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}>
-                <option value="">Select…</option>
+                <option value="">{t('common.select')}</option>
                 {suppliers?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </Select>
             </Field>
           )}
-          <Field label="Bank Account (leave blank for cash)">
+          <Field label={t('payments.bankAccountLabel')}>
             <Select value={form.bank_account_id} onChange={(e) => setForm({ ...form, bank_account_id: e.target.value })}>
-              <option value="">Cash</option>
+              <option value="">{t('payments.cash')}</option>
               {bankAccounts?.map((b) => <option key={b.id} value={b.id}>{b.account_name}</option>)}
             </Select>
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Amount">
+            <Field label={t('payments.amount')}>
               <Input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </Field>
-            <Field label="Date">
+            <Field label={t('payments.date')}>
               <Input type="date" required value={form.payment_date} onChange={(e) => setForm({ ...form, payment_date: e.target.value })} />
             </Field>
           </div>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Payment'}
+            {createMutation.isPending ? t('common.saving') : t('payments.savePayment')}
           </Button>
         </form>
       </Modal>

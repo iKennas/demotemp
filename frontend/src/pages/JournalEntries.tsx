@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
@@ -22,6 +23,7 @@ const statusColor: Record<string, string> = { draft: 'gray', posted: 'green', vo
 
 export default function JournalEntries() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [entryDate, setEntryDate] = useState(new Date().toISOString().slice(0, 10))
@@ -83,7 +85,7 @@ export default function JournalEntries() {
     e.preventDefault()
     setError('')
     if (!balanced) {
-      setError('Total debit must equal total credit before saving.')
+      setError(t('journalEntries.mustBalance'))
       return
     }
     createMutation.mutate()
@@ -92,29 +94,29 @@ export default function JournalEntries() {
   return (
     <div>
       <PageHeader
-        title="Journal Entries"
-        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>+ New Entry</Button>}
+        title={t('journalEntries.pageTitle')}
+        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>{t('journalEntries.newEntry')}</Button>}
       />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message="No journal entries yet." />
+          <EmptyState message={t('journalEntries.emptyMessage')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Entry #</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3 text-right">Debit</th>
-                <th className="px-4 py-3 text-right">Credit</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t('journalEntries.colEntryNumber')}</th>
+                <th className="px-4 py-3">{t('journalEntries.colDate')}</th>
+                <th className="px-4 py-3">{t('journalEntries.colDescription')}</th>
+                <th className="px-4 py-3 text-right">{t('journalEntries.colDebit')}</th>
+                <th className="px-4 py-3 text-right">{t('journalEntries.colCredit')}</th>
+                <th className="px-4 py-3">{t('journalEntries.colStatus')}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={7}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={7}>{t('common.loading')}</td>
                 </tr>
               )}
               {data?.data.map((je) => (
@@ -125,28 +127,28 @@ export default function JournalEntries() {
                   <td className="px-4 py-3 text-right text-subtle">{je.total_debit}</td>
                   <td className="px-4 py-3 text-right text-subtle">{je.total_credit}</td>
                   <td className="px-4 py-3">
-                    <Badge color={statusColor[je.status]}>{je.status}</Badge>
+                    <Badge color={statusColor[je.status]}>{t(`status.${je.status}`)}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right space-x-2">
                     {can('finance.manage') && je.status === 'draft' && (
                       <>
                         <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-accent hover:underline">
-                          Post
+                          {t('journalEntries.post')}
                         </button>
                         <button
-                          onClick={() => confirm('Delete this draft entry?') && deleteMutation.mutate(je.id)}
+                          onClick={() => confirm(t('journalEntries.deleteConfirm')) && deleteMutation.mutate(je.id)}
                           className="text-xs font-medium text-red-600 hover:underline"
                         >
-                          Delete
+                          {t('journalEntries.delete')}
                         </button>
                       </>
                     )}
                     {can('finance.manage') && je.status === 'posted' && (
                       <button
-                        onClick={() => confirm('Void this entry? This cannot be undone.') && voidMutation.mutate(je.id)}
+                        onClick={() => confirm(t('journalEntries.voidConfirm')) && voidMutation.mutate(je.id)}
                         className="text-xs font-medium text-red-600 hover:underline"
                       >
-                        Void
+                        {t('journalEntries.void')}
                       </button>
                     )}
                   </td>
@@ -160,13 +162,13 @@ export default function JournalEntries() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Journal Entry">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('journalEntries.newEntryModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Date">
+            <Field label={t('fields.date')}>
               <Input type="date" required value={entryDate} onChange={(e) => setEntryDate(e.target.value)} />
             </Field>
-            <Field label="Description">
+            <Field label={t('fields.description')}>
               <Input value={description} onChange={(e) => setDescription(e.target.value)} />
             </Field>
           </div>
@@ -176,7 +178,7 @@ export default function JournalEntries() {
               <div key={i} className="grid grid-cols-12 gap-2">
                 <div className="col-span-5">
                   <Select value={line.account_id} onChange={(e) => updateLine(i, { account_id: e.target.value })}>
-                    <option value="">Account…</option>
+                    <option value="">{t('journalEntries.accountPlaceholder')}</option>
                     {accounts?.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.code} - {a.name}
@@ -185,10 +187,10 @@ export default function JournalEntries() {
                   </Select>
                 </div>
                 <div className="col-span-3">
-                  <Input type="number" step="0.01" placeholder="Debit" value={line.debit} onChange={(e) => updateLine(i, { debit: e.target.value, credit: '' })} />
+                  <Input type="number" step="0.01" placeholder={t('journalEntries.debitPlaceholder')} value={line.debit} onChange={(e) => updateLine(i, { debit: e.target.value, credit: '' })} />
                 </div>
                 <div className="col-span-3">
-                  <Input type="number" step="0.01" placeholder="Credit" value={line.credit} onChange={(e) => updateLine(i, { credit: e.target.value, debit: '' })} />
+                  <Input type="number" step="0.01" placeholder={t('journalEntries.creditPlaceholder')} value={line.credit} onChange={(e) => updateLine(i, { credit: e.target.value, debit: '' })} />
                 </div>
                 <div className="col-span-1 flex items-center justify-center">
                   {lines.length > 2 && (
@@ -200,18 +202,18 @@ export default function JournalEntries() {
               </div>
             ))}
             <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-accent hover:underline">
-              + Add line
+              {t('journalEntries.addLine')}
             </button>
           </div>
 
           <div className={`flex justify-between rounded-md px-3 py-2 text-sm ${balanced ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-            <span>Debit: {totalDebit.toFixed(2)}</span>
-            <span>Credit: {totalCredit.toFixed(2)}</span>
+            <span>{t('journalEntries.debitLabel', { amount: totalDebit.toFixed(2) })}</span>
+            <span>{t('journalEntries.creditLabel', { amount: totalCredit.toFixed(2) })}</span>
           </div>
 
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending || !balanced} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Entry'}
+            {createMutation.isPending ? t('common.saving') : t('journalEntries.saveEntry')}
           </Button>
         </form>
       </Modal>

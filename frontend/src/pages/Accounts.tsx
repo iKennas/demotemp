@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account } from '../types'
@@ -11,6 +12,7 @@ const typeColors: Record<string, string> = { asset: 'blue', liability: 'red', eq
 
 export default function Accounts() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -40,33 +42,33 @@ export default function Accounts() {
   return (
     <div>
       <PageHeader
-        title="Chart of Accounts"
-        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>+ New Account</Button>}
+        title={t('accounts.pageTitle')}
+        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>{t('accounts.newAccount')}</Button>}
       />
       <Card>
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
             <tr>
-              <th className="px-4 py-3">Code</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Normal Balance</th>
+              <th className="px-4 py-3">{t('accounts.colCode')}</th>
+              <th className="px-4 py-3">{t('accounts.colName')}</th>
+              <th className="px-4 py-3">{t('accounts.colType')}</th>
+              <th className="px-4 py-3">{t('accounts.colNormalBalance')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
             {isLoading && (
               <tr>
-                <td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td>
+                <td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td>
               </tr>
             )}
             {data?.map((a) => (
               <tr key={a.id}>
                 <td className="px-4 py-3 font-mono text-subtle">{a.code}</td>
                 <td className="px-4 py-3 font-medium text-content">
-                  {a.name} {a.is_system && <span className="ml-1 text-xs text-faint">(system)</span>}
+                  {a.name} {a.is_system && <span className="ml-1 text-xs text-faint">({t('common.system')})</span>}
                 </td>
                 <td className="px-4 py-3">
-                  <Badge color={typeColors[a.type]}>{a.type}</Badge>
+                  <Badge color={typeColors[a.type]}>{t(`accounts.type${a.type.charAt(0).toUpperCase()}${a.type.slice(1)}`)}</Badge>
                 </td>
                 <td className="px-4 py-3 capitalize text-subtle">{a.normal_balance}</td>
               </tr>
@@ -75,17 +77,17 @@ export default function Accounts() {
         </table>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Account">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('accounts.newAccountModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Code">
+            <Field label={t('fields.code')}>
               <Input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} />
             </Field>
-            <Field label="Name">
+            <Field label={t('fields.name')}>
               <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </Field>
           </div>
-          <Field label="Type">
+          <Field label={t('fields.type')}>
             <Select
               value={form.type}
               onChange={(e) => {
@@ -94,16 +96,16 @@ export default function Accounts() {
                 setForm({ ...form, type, normal_balance })
               }}
             >
-              <option value="asset">Asset</option>
-              <option value="liability">Liability</option>
-              <option value="equity">Equity</option>
-              <option value="revenue">Revenue</option>
-              <option value="expense">Expense</option>
+              <option value="asset">{t('accounts.typeAsset')}</option>
+              <option value="liability">{t('accounts.typeLiability')}</option>
+              <option value="equity">{t('accounts.typeEquity')}</option>
+              <option value="revenue">{t('accounts.typeRevenue')}</option>
+              <option value="expense">{t('accounts.typeExpense')}</option>
             </Select>
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Account'}
+            {createMutation.isPending ? t('common.saving') : t('accounts.saveAccount')}
           </Button>
         </form>
       </Modal>

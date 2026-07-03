@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { Company, Paginated, Plan } from '../types'
 import { Badge, Card, PageHeader, Select } from '../components/ui'
 
 function CompaniesTab() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { data, isLoading } = useQuery({
     queryKey: ['admin-companies'],
@@ -20,14 +22,14 @@ function CompaniesTab() {
     <table className="w-full text-left text-sm">
       <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
-          <th className="px-4 py-3">Company</th>
-          <th className="px-4 py-3">Plan</th>
-          <th className="px-4 py-3">Users</th>
-          <th className="px-4 py-3">Status</th>
+          <th className="px-4 py-3">{t('admin.colCompany')}</th>
+          <th className="px-4 py-3">{t('admin.colPlan')}</th>
+          <th className="px-4 py-3">{t('admin.colUsers')}</th>
+          <th className="px-4 py-3">{t('admin.colStatus')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-line">
-        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td></tr>}
+        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
         {data?.data.map((c) => (
           <tr key={c.id}>
             <td className="px-4 py-3 font-medium text-content">{c.name}</td>
@@ -39,9 +41,9 @@ function CompaniesTab() {
                 onChange={(e) => updateStatus.mutate({ id: c.id, status: e.target.value })}
                 className="w-32"
               >
-                <option value="trial">Trial</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
+                <option value="trial">{t('status.trial')}</option>
+                <option value="active">{t('status.active')}</option>
+                <option value="suspended">{t('status.suspended')}</option>
               </Select>
             </td>
           </tr>
@@ -52,28 +54,29 @@ function CompaniesTab() {
 }
 
 function PlansTab() {
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['admin-plans'], queryFn: async () => (await api.get<{ data: Plan[] }>('/admin/plans')).data.data })
 
   return (
     <table className="w-full text-left text-sm">
       <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
-          <th className="px-4 py-3">Name</th>
-          <th className="px-4 py-3">Price</th>
-          <th className="px-4 py-3">Billing</th>
-          <th className="px-4 py-3">Max Users</th>
-          <th className="px-4 py-3">Status</th>
+          <th className="px-4 py-3">{t('admin.colName')}</th>
+          <th className="px-4 py-3">{t('admin.colPrice')}</th>
+          <th className="px-4 py-3">{t('admin.colBilling')}</th>
+          <th className="px-4 py-3">{t('admin.colMaxUsers')}</th>
+          <th className="px-4 py-3">{t('admin.colStatus')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-line">
-        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={5}>Loading…</td></tr>}
+        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={5}>{t('common.loading')}</td></tr>}
         {data?.map((p) => (
           <tr key={p.id}>
             <td className="px-4 py-3 font-medium text-content">{p.name}</td>
             <td className="px-4 py-3 text-subtle">{p.price}</td>
-            <td className="px-4 py-3 capitalize text-subtle">{p.billing_cycle}</td>
-            <td className="px-4 py-3 text-subtle">{p.max_users ?? 'Unlimited'}</td>
-            <td className="px-4 py-3"><Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? 'Active' : 'Inactive'}</Badge></td>
+            <td className="px-4 py-3 text-subtle">{p.billing_cycle === 'yearly' ? t('admin.billingYearly') : t('admin.billingMonthly')}</td>
+            <td className="px-4 py-3 text-subtle">{p.max_users ?? t('common.unlimited')}</td>
+            <td className="px-4 py-3"><Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
           </tr>
         ))}
       </tbody>
@@ -82,16 +85,17 @@ function PlansTab() {
 }
 
 export default function Admin() {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<'companies' | 'plans'>('companies')
 
   return (
     <div>
       <PageHeader
-        title="Platform Admin"
+        title={t('admin.pageTitle')}
         action={
           <Select value={tab} onChange={(e) => setTab(e.target.value as 'companies' | 'plans')} className="w-40">
-            <option value="companies">Companies</option>
-            <option value="plans">Plans</option>
+            <option value="companies">{t('admin.companies')}</option>
+            <option value="plans">{t('admin.plans')}</option>
           </Select>
         }
       />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { Paginated } from '../types'
 import { Badge, Card, EmptyState, PageHeader, Pagination, Select } from '../components/ui'
@@ -22,6 +23,7 @@ function modelLabel(type: string) {
 }
 
 export default function AuditLog() {
+  const { t } = useTranslation()
   const [action, setAction] = useState('')
   const [page, setPage] = useState(1)
 
@@ -33,37 +35,37 @@ export default function AuditLog() {
   return (
     <div>
       <PageHeader
-        title="Audit Log"
+        title={t('auditLog.pageTitle')}
         action={
           <Select value={action} onChange={(e) => { setAction(e.target.value); setPage(1) }} className="w-40">
-            <option value="">All actions</option>
-            <option value="created">Created</option>
-            <option value="updated">Updated</option>
-            <option value="deleted">Deleted</option>
+            <option value="">{t('auditLog.allActions')}</option>
+            <option value="created">{t('auditLog.created')}</option>
+            <option value="updated">{t('auditLog.updated')}</option>
+            <option value="deleted">{t('auditLog.deleted')}</option>
           </Select>
         }
       />
       <Card>
-        {isLoading && <p className="p-6 text-sm text-faint">Loading…</p>}
-        {!isLoading && data?.data.length === 0 && <EmptyState message="No activity yet. Changes made in this company will show up here." />}
+        {isLoading && <p className="p-6 text-sm text-faint">{t('common.loading')}</p>}
+        {!isLoading && data?.data.length === 0 && <EmptyState message={t('auditLog.emptyMessage')} />}
         {!isLoading && data && data.data.length > 0 && (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">When</th>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Action</th>
-                <th className="px-4 py-3">Record</th>
-                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">{t('auditLog.colWhen')}</th>
+                <th className="px-4 py-3">{t('auditLog.colUser')}</th>
+                <th className="px-4 py-3">{t('auditLog.colAction')}</th>
+                <th className="px-4 py-3">{t('auditLog.colRecord')}</th>
+                <th className="px-4 py-3">{t('auditLog.colDescription')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {data.data.map((log) => (
                 <tr key={log.id}>
                   <td className="whitespace-nowrap px-4 py-3 text-subtle">{log.created_at.slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-4 py-3 text-subtle">{log.user?.name ?? 'System'}</td>
+                  <td className="px-4 py-3 text-subtle">{log.user?.name ?? t('auditLog.system')}</td>
                   <td className="px-4 py-3">
-                    <Badge color={actionColor[log.action] ?? 'gray'}>{log.action}</Badge>
+                    <Badge color={actionColor[log.action] ?? 'gray'}>{t(`auditLog.${log.action}`)}</Badge>
                   </td>
                   <td className="px-4 py-3 text-subtle">{modelLabel(log.auditable_type)} #{log.auditable_id}</td>
                   <td className="px-4 py-3 text-content">{log.description}</td>

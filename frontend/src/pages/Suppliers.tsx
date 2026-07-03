@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Supplier } from '../types'
@@ -18,6 +19,7 @@ interface StatementLine {
 
 export default function Suppliers() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -82,29 +84,29 @@ export default function Suppliers() {
   return (
     <div>
       <PageHeader
-        title="Suppliers"
-        action={can('suppliers.manage') && <Button onClick={() => setOpen(true)}>+ New Supplier</Button>}
+        title={t('suppliers.pageTitle')}
+        action={can('suppliers.manage') && <Button onClick={() => setOpen(true)}>{t('suppliers.newSupplier')}</Button>}
       />
       <div className="mb-4 max-w-xs">
-        <Input placeholder="Search suppliers…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+        <Input placeholder={t('suppliers.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
       </div>
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message={search ? 'No suppliers match your search.' : 'No suppliers yet.'} />
+          <EmptyState message={search ? t('suppliers.emptySearch') : t('suppliers.emptyDefault')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t('suppliers.colName')}</th>
+                <th className="px-4 py-3">{t('suppliers.colEmail')}</th>
+                <th className="px-4 py-3">{t('suppliers.colPhone')}</th>
+                <th className="px-4 py-3">{t('suppliers.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={4}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td>
                 </tr>
               )}
               {data?.data.map((s) => (
@@ -113,7 +115,7 @@ export default function Suppliers() {
                   <td className="px-4 py-3 text-subtle">{s.email ?? '—'}</td>
                   <td className="px-4 py-3 text-subtle">{s.phone ?? '—'}</td>
                   <td className="px-4 py-3">
-                    <Badge color={s.status === 'active' ? 'green' : 'gray'}>{s.status}</Badge>
+                    <Badge color={s.status === 'active' ? 'green' : 'gray'}>{s.status === 'active' ? t('status.active') : t('status.inactive')}</Badge>
                   </td>
                 </tr>
               ))}
@@ -125,23 +127,23 @@ export default function Suppliers() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Supplier">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('suppliers.newSupplierModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Name">
+          <Field label={t('fields.name')}>
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </Field>
-          <Field label="Email">
+          <Field label={t('fields.email')}>
             <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </Field>
-          <Field label="Phone">
+          <Field label={t('fields.phone')}>
             <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           </Field>
-          <Field label="Tax Number">
+          <Field label={t('fields.taxNumber')}>
             <Input value={form.tax_number} onChange={(e) => setForm({ ...form, tax_number: e.target.value })} />
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Supplier'}
+            {createMutation.isPending ? t('common.saving') : t('suppliers.saveSupplier')}
           </Button>
         </form>
       </Modal>
@@ -149,29 +151,29 @@ export default function Suppliers() {
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?.name ?? ''}>
         {!showStatement ? (
           <form onSubmit={onEditSubmit} className="space-y-4">
-            <Field label="Name">
+            <Field label={t('fields.name')}>
               <Input required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} disabled={!can('suppliers.manage')} />
             </Field>
-            <Field label="Email">
+            <Field label={t('fields.email')}>
               <Input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} disabled={!can('suppliers.manage')} />
             </Field>
-            <Field label="Phone">
+            <Field label={t('fields.phone')}>
               <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} disabled={!can('suppliers.manage')} />
             </Field>
-            <Field label="Status">
+            <Field label={t('fields.status')}>
               <Select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })} disabled={!can('suppliers.manage')}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">{t('status.active')}</option>
+                <option value="inactive">{t('status.inactive')}</option>
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setShowStatement(true)} className="flex-1">
-                View Statement
+                {t('suppliers.viewStatement')}
               </Button>
               {can('suppliers.manage') && (
                 <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
-                  {updateMutation.isPending ? 'Saving…' : 'Save Changes'}
+                  {updateMutation.isPending ? t('common.saving') : t('common.saveChanges')}
                 </Button>
               )}
             </div>
@@ -180,30 +182,30 @@ export default function Suppliers() {
           <div>
             <div className="mb-3 flex items-center justify-between">
               <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent hover:underline">
-                ← Back to details
+                {t('suppliers.backToDetails')}
               </button>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => downloadPdf(`/suppliers/${editing!.id}/statement/pdf`, `statement-${editing!.name}.pdf`)}
               >
-                Download PDF
+                {t('suppliers.downloadPdf')}
               </Button>
             </div>
-            {statementLoading && <p className="text-sm text-faint">Loading…</p>}
+            {statementLoading && <p className="text-sm text-faint">{t('common.loading')}</p>}
             {statement && (
               <div className="text-sm">
                 <div className="mb-2 flex justify-between text-faint">
-                  <span>Opening balance</span>
+                  <span>{t('suppliers.openingBalance')}</span>
                   <span>{fmt(statement.opening_balance)}</span>
                 </div>
                 <table className="w-full text-left">
                   <thead className="border-b border-line text-xs uppercase text-faint">
                     <tr>
-                      <th className="py-1">Date</th>
-                      <th className="py-1">Ref</th>
-                      <th className="py-1 text-right">Amount</th>
-                      <th className="py-1 text-right">Balance</th>
+                      <th className="py-1">{t('suppliers.colDate')}</th>
+                      <th className="py-1">{t('suppliers.colRef')}</th>
+                      <th className="py-1 text-right">{t('suppliers.colAmount')}</th>
+                      <th className="py-1 text-right">{t('suppliers.colBalance')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -218,7 +220,7 @@ export default function Suppliers() {
                   </tbody>
                 </table>
                 <div className="mt-2 flex justify-between border-t border-line pt-2 font-semibold">
-                  <span>Closing balance</span>
+                  <span>{t('suppliers.closingBalance')}</span>
                   <span>{fmt(statement.closing_balance)}</span>
                 </div>
               </div>

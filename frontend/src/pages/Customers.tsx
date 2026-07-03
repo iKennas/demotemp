@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Paginated } from '../types'
@@ -18,6 +19,7 @@ interface StatementLine {
 
 export default function Customers() {
   const { can } = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
@@ -89,44 +91,44 @@ export default function Customers() {
   return (
     <div>
       <PageHeader
-        title="Customers"
+        title={t('customers.pageTitle')}
         action={
           can('customers.manage') && (
-            <Button onClick={() => setOpen(true)}>+ New Customer</Button>
+            <Button onClick={() => setOpen(true)}>{t('customers.newCustomer')}</Button>
           )
         }
       />
       <div className="mb-4 max-w-xs">
-        <Input placeholder="Search customers…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+        <Input placeholder={t('customers.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
       </div>
       <Card>
         {data?.data.length === 0 && !isLoading ? (
-          <EmptyState message={search ? 'No customers match your search.' : 'No customers yet.'} />
+          <EmptyState message={search ? t('customers.emptySearch') : t('customers.emptyDefault')} />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t('customers.colName')}</th>
+                <th className="px-4 py-3">{t('customers.colType')}</th>
+                <th className="px-4 py-3">{t('customers.colEmail')}</th>
+                <th className="px-4 py-3">{t('customers.colPhone')}</th>
+                <th className="px-4 py-3">{t('customers.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={5}>Loading…</td>
+                  <td className="px-4 py-6 text-faint" colSpan={5}>{t('common.loading')}</td>
                 </tr>
               )}
               {data?.data.map((c) => (
                 <tr key={c.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(c)}>
                   <td className="px-4 py-3 font-medium text-content">{c.name}</td>
-                  <td className="px-4 py-3 capitalize text-subtle">{c.type}</td>
+                  <td className="px-4 py-3 text-subtle">{c.type === 'company' ? t('customers.typeCompany') : t('customers.typeIndividual')}</td>
                   <td className="px-4 py-3 text-subtle">{c.email ?? '—'}</td>
                   <td className="px-4 py-3 text-subtle">{c.phone ?? '—'}</td>
                   <td className="px-4 py-3">
-                    <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge>
+                    <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status === 'active' ? t('status.active') : t('status.inactive')}</Badge>
                   </td>
                 </tr>
               ))}
@@ -138,29 +140,29 @@ export default function Customers() {
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Customer">
+      <Modal open={open} onClose={() => setOpen(false)} title={t('customers.newCustomerModalTitle')}>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Field label="Name">
+          <Field label={t('fields.name')}>
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </Field>
-          <Field label="Type">
+          <Field label={t('fields.type')}>
             <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-              <option value="individual">Individual</option>
-              <option value="company">Company</option>
+              <option value="individual">{t('customers.typeIndividual')}</option>
+              <option value="company">{t('customers.typeCompany')}</option>
             </Select>
           </Field>
-          <Field label="Email">
+          <Field label={t('fields.email')}>
             <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </Field>
-          <Field label="Phone">
+          <Field label={t('fields.phone')}>
             <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           </Field>
-          <Field label="Tax Number">
+          <Field label={t('fields.taxNumber')}>
             <Input value={form.tax_number} onChange={(e) => setForm({ ...form, tax_number: e.target.value })} />
           </Field>
           <ErrorText>{error}</ErrorText>
           <Button type="submit" disabled={createMutation.isPending} className="w-full">
-            {createMutation.isPending ? 'Saving…' : 'Save Customer'}
+            {createMutation.isPending ? t('common.saving') : t('customers.saveCustomer')}
           </Button>
         </form>
       </Modal>
@@ -168,35 +170,35 @@ export default function Customers() {
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?.name ?? ''}>
         {!showStatement ? (
           <form onSubmit={onEditSubmit} className="space-y-4">
-            <Field label="Name">
+            <Field label={t('fields.name')}>
               <Input required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} disabled={!can('customers.manage')} />
             </Field>
-            <Field label="Type">
+            <Field label={t('fields.type')}>
               <Select value={editForm.type} onChange={(e) => setEditForm({ ...editForm, type: e.target.value })} disabled={!can('customers.manage')}>
-                <option value="individual">Individual</option>
-                <option value="company">Company</option>
+                <option value="individual">{t('customers.typeIndividual')}</option>
+                <option value="company">{t('customers.typeCompany')}</option>
               </Select>
             </Field>
-            <Field label="Email">
+            <Field label={t('fields.email')}>
               <Input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} disabled={!can('customers.manage')} />
             </Field>
-            <Field label="Phone">
+            <Field label={t('fields.phone')}>
               <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} disabled={!can('customers.manage')} />
             </Field>
-            <Field label="Status">
+            <Field label={t('fields.status')}>
               <Select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })} disabled={!can('customers.manage')}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">{t('status.active')}</option>
+                <option value="inactive">{t('status.inactive')}</option>
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setShowStatement(true)} className="flex-1">
-                View Statement
+                {t('customers.viewStatement')}
               </Button>
               {can('customers.manage') && (
                 <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
-                  {updateMutation.isPending ? 'Saving…' : 'Save Changes'}
+                  {updateMutation.isPending ? t('common.saving') : t('common.saveChanges')}
                 </Button>
               )}
             </div>
@@ -205,30 +207,30 @@ export default function Customers() {
           <div>
             <div className="mb-3 flex items-center justify-between">
               <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent hover:underline">
-                ← Back to details
+                {t('customers.backToDetails')}
               </button>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => downloadPdf(`/customers/${editing!.id}/statement/pdf`, `statement-${editing!.name}.pdf`)}
               >
-                Download PDF
+                {t('customers.downloadPdf')}
               </Button>
             </div>
-            {statementLoading && <p className="text-sm text-faint">Loading…</p>}
+            {statementLoading && <p className="text-sm text-faint">{t('common.loading')}</p>}
             {statement && (
               <div className="text-sm">
                 <div className="mb-2 flex justify-between text-faint">
-                  <span>Opening balance</span>
+                  <span>{t('customers.openingBalance')}</span>
                   <span>{fmt(statement.opening_balance)}</span>
                 </div>
                 <table className="w-full text-left">
                   <thead className="border-b border-line text-xs uppercase text-faint">
                     <tr>
-                      <th className="py-1">Date</th>
-                      <th className="py-1">Ref</th>
-                      <th className="py-1 text-right">Amount</th>
-                      <th className="py-1 text-right">Balance</th>
+                      <th className="py-1">{t('customers.colDate')}</th>
+                      <th className="py-1">{t('customers.colRef')}</th>
+                      <th className="py-1 text-right">{t('customers.colAmount')}</th>
+                      <th className="py-1 text-right">{t('customers.colBalance')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -243,7 +245,7 @@ export default function Customers() {
                   </tbody>
                 </table>
                 <div className="mt-2 flex justify-between border-t border-line pt-2 font-semibold">
-                  <span>Closing balance</span>
+                  <span>{t('customers.closingBalance')}</span>
                   <span>{fmt(statement.closing_balance)}</span>
                 </div>
               </div>

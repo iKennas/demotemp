@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
 import { Button, Card, PageHeader, Select } from '../components/ui'
 
@@ -13,16 +14,17 @@ interface BS { assets: BSRow[]; liabilities: BSRow[]; equity: BSRow[]; net_incom
 const fmt = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2 })
 
 function TrialBalanceView() {
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['trial-balance'], queryFn: async () => (await api.get<TrialBalance>('/reports/trial-balance')).data })
-  if (isLoading) return <p className="text-sm text-faint">Loading…</p>
+  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
   return (
     <table className="w-full text-left text-sm">
       <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
-          <th className="px-4 py-3">Code</th>
-          <th className="px-4 py-3">Account</th>
-          <th className="px-4 py-3 text-right">Debit</th>
-          <th className="px-4 py-3 text-right">Credit</th>
+          <th className="px-4 py-3">{t('reports.colCode')}</th>
+          <th className="px-4 py-3">{t('reports.colAccount')}</th>
+          <th className="px-4 py-3 text-right">{t('reports.colDebit')}</th>
+          <th className="px-4 py-3 text-right">{t('reports.colCredit')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-line">
@@ -37,7 +39,7 @@ function TrialBalanceView() {
       </tbody>
       <tfoot className="border-t-2 border-line font-semibold text-content">
         <tr>
-          <td className="px-4 py-3" colSpan={2}>Total</td>
+          <td className="px-4 py-3" colSpan={2}>{t('reports.total')}</td>
           <td className="px-4 py-3 text-right">{fmt(data?.total_debit ?? 0)}</td>
           <td className="px-4 py-3 text-right">{fmt(data?.total_credit ?? 0)}</td>
         </tr>
@@ -47,18 +49,19 @@ function TrialBalanceView() {
 }
 
 function ProfitAndLossView() {
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['pl'], queryFn: async () => (await api.get<PL>('/reports/profit-and-loss')).data })
-  if (isLoading) return <p className="text-sm text-faint">Loading…</p>
+  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
   return (
     <div className="p-4">
-      <h3 className="mb-2 text-sm font-semibold text-subtle">Revenue</h3>
+      <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.revenue')}</h3>
       {data?.revenue.map((r) => (
         <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
           <span className="text-subtle">{r.name}</span>
           <span className="text-content">{fmt(r.amount)}</span>
         </div>
       ))}
-      <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">Expenses</h3>
+      <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">{t('reports.expenses')}</h3>
       {data?.expenses.map((r) => (
         <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
           <span className="text-subtle">{r.name}</span>
@@ -66,7 +69,7 @@ function ProfitAndLossView() {
         </div>
       ))}
       <div className="mt-4 flex justify-between border-t-2 border-line pt-2 text-base font-semibold">
-        <span>Net Income</span>
+        <span>{t('reports.netIncome')}</span>
         <span className={data && data.net_income < 0 ? 'text-red-600' : 'text-green-600'}>{fmt(data?.net_income ?? 0)}</span>
       </div>
     </div>
@@ -74,12 +77,13 @@ function ProfitAndLossView() {
 }
 
 function BalanceSheetView() {
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['bs'], queryFn: async () => (await api.get<BS>('/reports/balance-sheet')).data })
-  if (isLoading) return <p className="text-sm text-faint">Loading…</p>
+  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
   return (
     <div className="grid grid-cols-2 gap-6 p-4">
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-subtle">Assets</h3>
+        <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.assets')}</h3>
         {data?.assets.map((r) => (
           <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
             <span className="text-subtle">{r.name}</span>
@@ -87,12 +91,12 @@ function BalanceSheetView() {
           </div>
         ))}
         <div className="mt-2 flex justify-between font-semibold">
-          <span>Total Assets</span>
+          <span>{t('reports.totalAssets')}</span>
           <span>{fmt(data?.total_assets ?? 0)}</span>
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-subtle">Liabilities</h3>
+        <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.liabilities')}</h3>
         {data?.liabilities.map((r) => (
           <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
             <span className="text-subtle">{r.name}</span>
@@ -100,10 +104,10 @@ function BalanceSheetView() {
           </div>
         ))}
         <div className="mt-2 flex justify-between font-semibold">
-          <span>Total Liabilities</span>
+          <span>{t('reports.totalLiabilities')}</span>
           <span>{fmt(data?.total_liabilities ?? 0)}</span>
         </div>
-        <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">Equity</h3>
+        <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">{t('reports.equity')}</h3>
         {data?.equity.map((r) => (
           <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
             <span className="text-subtle">{r.name}</span>
@@ -111,11 +115,11 @@ function BalanceSheetView() {
           </div>
         ))}
         <div className="flex justify-between border-b border-line py-1.5 text-sm">
-          <span className="text-subtle">Net Income</span>
+          <span className="text-subtle">{t('reports.netIncome')}</span>
           <span className="text-content">{fmt(data?.net_income ?? 0)}</span>
         </div>
         <div className="mt-2 flex justify-between font-semibold">
-          <span>Total Equity</span>
+          <span>{t('reports.totalEquity')}</span>
           <span>{fmt(data?.total_equity ?? 0)}</span>
         </div>
       </div>
@@ -130,21 +134,22 @@ const reportPdf: Record<string, { path: string; filename: string }> = {
 }
 
 export default function Reports() {
+  const { t } = useTranslation()
   const [tab, setTab] = useState('trial-balance')
 
   return (
     <div>
       <PageHeader
-        title="Reports"
+        title={t('reports.pageTitle')}
         action={
           <div className="flex items-center gap-2">
             <Select value={tab} onChange={(e) => setTab(e.target.value)} className="w-56">
-              <option value="trial-balance">Trial Balance</option>
-              <option value="profit-and-loss">Profit & Loss</option>
-              <option value="balance-sheet">Balance Sheet</option>
+              <option value="trial-balance">{t('reports.trialBalance')}</option>
+              <option value="profit-and-loss">{t('reports.profitAndLoss')}</option>
+              <option value="balance-sheet">{t('reports.balanceSheet')}</option>
             </Select>
             <Button variant="secondary" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
-              Download PDF
+              {t('reports.downloadPdf')}
             </Button>
           </div>
         }
