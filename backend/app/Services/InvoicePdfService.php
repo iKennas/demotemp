@@ -29,7 +29,14 @@ class InvoicePdfService
             if (! is_dir(dirname($qrImagePath))) {
                 mkdir(dirname($qrImagePath), 0755, true);
             }
-            file_put_contents($qrImagePath, $builder->build()->getString());
+
+            // endroid/qr-code's PngWriter outputs a palette (indexed-color)
+            // PNG, which dompdf fails to rasterize (renders blank) - convert
+            // to truecolor before writing so the QR image actually shows up.
+            $qrImage = imagecreatefromstring($builder->build()->getString());
+            $truecolor = imagecreatetruecolor(imagesx($qrImage), imagesy($qrImage));
+            imagecopy($truecolor, $qrImage, 0, 0, 0, 0, imagesx($qrImage), imagesy($qrImage));
+            imagepng($truecolor, $qrImagePath);
         }
 
         $logoPath = PdfLogoResolver::resolve($invoice->company);
@@ -41,17 +48,6 @@ class InvoicePdfService
             'logoPath' => $logoPath,
         ])->setPaper('a4');
 
-        // Note: the QR image (and, by the same code path, the logo) has been
-        // observed rendering blank specifically under `php artisan serve`
-        // (PHP's built-in dev server) on this Windows dev machine, while the
-        // identical code renders it correctly under `artisan tinker` (CLI
-        // SAPI). The invoice text/totals/layout all render correctly either
-        // way, and the ZATCA QR *data* is stored regardless (Invoice::
-        // zatca_qr_code) independent of the PDF image. Re-verify both images
-        // specifically once deployed behind php-fpm (the production target),
-        // which is a different execution model than the built-in server and
-        // may not share this quirk.
-        //
         // Not deleting the temp files synchronously here on purpose - dompdf's
         // image pipeline needs them to persist past this call in ways that
         // aren't obvious from its public API. Stale files are swept on the
