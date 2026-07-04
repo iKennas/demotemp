@@ -7,7 +7,7 @@ export function Button({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' | 'ghost' }) {
   const variants: Record<string, string> = {
-    primary: 'bg-accent text-white shadow-sm hover:bg-accent-hover disabled:opacity-50',
+    primary: 'bg-accent text-accent-ink shadow-sm hover:bg-accent-hover disabled:opacity-50',
     secondary: 'border border-line bg-surface text-subtle hover:bg-muted hover:text-content disabled:opacity-50',
     danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 disabled:opacity-50',
     ghost: 'text-subtle hover:bg-muted hover:text-content disabled:opacity-50',

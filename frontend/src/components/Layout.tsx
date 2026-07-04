@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import logoIcon from '../assets/logo-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supportedLanguages } from '../i18n'
@@ -68,7 +69,7 @@ export default function Layout() {
     <div className="flex min-h-screen bg-app">
       <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
         <div className="flex items-center gap-2.5 border-b border-line px-5 py-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white">U</span>
+          <img src={logoIcon} alt="" className="h-8 w-8 object-contain" />
           <div>
             <span className="block text-sm font-bold leading-tight text-content">{t('app.name')}</span>
             <span className="block text-xs leading-tight text-faint">{t('app.tagline')}</span>

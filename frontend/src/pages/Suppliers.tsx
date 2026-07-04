@@ -181,7 +181,7 @@ export default function Suppliers() {
         ) : (
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent hover:underline">
+              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent-strong hover:underline">
                 {t('suppliers.backToDetails')}
               </button>
               <Button

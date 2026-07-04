@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import logoIcon from '../assets/logo-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { apiErrorMessage } from '../api/errors'
 import { Button, Card, ErrorText, Field, Input } from '../components/ui'
@@ -32,7 +33,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-app px-4">
       <Card className="w-full max-w-sm p-8">
         <div className="mb-6 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-base font-bold text-white">U</span>
+          <img src={logoIcon} alt="" className="h-9 w-9 object-contain" />
           <div>
             <h1 className="text-lg font-semibold leading-tight text-content">{t('auth.signInTitle', { app: t('app.name') })}</h1>
             <p className="text-sm leading-tight text-faint">{t('auth.signInSubtitle')}</p>
@@ -52,7 +53,7 @@ export default function Login() {
         </form>
         <p className="mt-4 text-center text-sm text-faint">
           {t('auth.noAccount')}{' '}
-          <Link to="/register" className="font-medium text-accent hover:underline">
+          <Link to="/register" className="font-medium text-accent-strong hover:underline">
             {t('auth.registerLink')}
           </Link>
         </p>

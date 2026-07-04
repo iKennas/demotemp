@@ -226,7 +226,7 @@ export default function Invoices() {
                 <div className="col-span-1 flex items-center justify-end pr-1 text-sm text-subtle">{lineTotal(it).toFixed(2)}</div>
               </div>
             ))}
-            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="text-xs font-medium text-accent hover:underline">
+            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="text-xs font-medium text-accent-strong hover:underline">
               {t('invoices.addItem')}
             </button>
           </div>

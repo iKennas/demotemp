@@ -132,7 +132,7 @@ export default function JournalEntries() {
                   <td className="px-4 py-3 text-right space-x-2">
                     {can('finance.manage') && je.status === 'draft' && (
                       <>
-                        <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-accent hover:underline">
+                        <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-accent-strong hover:underline">
                           {t('journalEntries.post')}
                         </button>
                         <button
@@ -201,7 +201,7 @@ export default function JournalEntries() {
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-accent hover:underline">
+            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-accent-strong hover:underline">
               {t('journalEntries.addLine')}
             </button>
           </div>
