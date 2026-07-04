@@ -2,7 +2,8 @@
 
 > **Purpose of this file:** single source of truth for where the project stands.
 > Read this first when starting a new chat session. Update the "Done" / "Next"
-> sections as work progresses. Last updated: **2026-07-04** (brand identity
+> sections as work progresses. Last updated: **2026-07-04** (KSA legal &
+> regulatory research pass added — see §5 — plus the earlier brand identity
 > pass — gold palette + real logo, replacing the generic green theme).
 
 URS is a **multi-tenant SaaS cloud accounting platform** for the Saudi market,
@@ -264,23 +265,80 @@ This machine required manual setup that a fresh clone will also need:
 1. **Moyasar payments** are scaffolded to the documented API shape but never
    run against a live/sandbox account. Field names + webhook payload shape must
    be re-checked against Moyasar's dashboard when real keys are added.
-2. **ZATCA Phase 2** (cryptographic stamping, XML invoice, clearance API) is out
-   of scope — only Phase-1 simplified QR is implemented.
+2. **ZATCA Phase 2** (cryptographic stamping, XML invoice, real-time
+   clearance/reporting API) is out of scope — only Phase-1 simplified QR is
+   implemented. This is not just a "someday" gap: Phase 2 is legally mandatory
+   for any customer above **SAR 750K** annual revenue (Wave 23, already in
+   effect) or **SAR 375K** (Wave 24, deadline June 30, 2026) — see §5 below.
 3. **VAT** is netted through a single `VAT Payable` account for both input and
    output tax (small-business simplification, not split input/output).
+4. **Data residency (PDPL):** the documented storage backend (Cloudflare R2,
+   see `DEPLOYMENT.md` §3.5) does not default to KSA data residency, which
+   Saudi's Personal Data Protection Law requires by default for personal
+   data. This must be addressed (Cloudflare Regional Services pinned to KSA,
+   or a KSA-resident alternative) before real customer data is stored in
+   production — see §5 below for the full picture. Nothing in the codebase
+   needs to change for this; it's purely an infrastructure-configuration
+   decision made at deploy time.
 
 ---
 
-## 5. NEXT TASKS (in recommended order) 🔜
+## 5. Legal & Regulatory Notes (KSA) ⚖️
+
+> Researched 2026-07-04 via web search — summarized here for cross-session
+> awareness, not a substitute for a Saudi lawyer/tax advisor. The actionable
+> checklist version (with exact section cross-references) lives in
+> `DEPLOYMENT.md` §0 — **read that before provisioning production infra.**
+
+- **ZATCA e-invoicing (Fatoora):** app implements Phase 1 (simplified QR)
+  only. Phase 2 (real-time clearance/reporting via API, UBL 2.1 XML,
+  cryptographic stamps) is legally mandatory once a customer's annual
+  revenue crosses **SAR 750K** (Wave 23, in effect now) or **SAR 375K**
+  (Wave 24, deadline **June 30, 2026**). This directly affects which
+  customers can legally run on this app as-is — see limitation #2.
+- **PDPL (data protection) — the one that conflicts with current
+  architecture:** full enforcement since September 2024. In-Kingdom data
+  residency is the *default* requirement for personal data (not a
+  best-practice suggestion), and exemptions are narrow (explicit consent +
+  destination risk assessment + binding contracts). Fines reach **SAR 5
+  million per breach**. **Cloudflare R2 (our documented storage backend)
+  does not default to KSA residency** — see limitation #4 and
+  `DEPLOYMENT.md` §0 for the fix (Cloudflare Regional Services pinned to
+  KSA, or a sovereign alternative like STC Cloud/Mobily/AWS's Saudi region).
+- **Payments (SAMA):** no gap here. Moyasar is confirmed as a SAMA-licensed
+  Payment Services Provider — merchants (us and our customers) just need a
+  valid Saudi Commercial Registration + linked Saudi bank account, not a
+  separate SAMA license. `MoyasarService`/`WebhookController` are already
+  built against the right integration model.
+- **VAT registration:** mandatory above SAR 375,000 annual taxable supplies
+  for resident businesses; **no threshold at all** for non-resident digital
+  service providers — applies to URS itself if not Saudi-resident,
+  independent of the app's own VAT-calculation logic (limitation #3).
+- **CST Cloud Computing Regulatory Framework:** classifies data into 4
+  levels (Public → Top Secret) with stricter residency/control rules at
+  each level; mainly targets cloud *providers* (AWS, STC Cloud, etc.) rather
+  than SaaS companies consuming cloud infra, but reinforces the same
+  residency point as PDPL.
+- **Company registration (if URS isn't yet a registered Saudi entity):**
+  software/IT allows 100% foreign ownership under MISA. Path: MISA investor
+  license → Commercial Registration → Chamber of Commerce.
+- **E-Commerce Law:** requires clear pre-checkout disclosure of full pricing
+  (incl. VAT), CR number, contact details, and refund/cancellation terms;
+  breaches must be reported to the Ministry of Commerce within 3 days.
+
+---
+
+## 6. NEXT TASKS (in recommended order) 🔜
 
 > Everything code-side from the original spec-derived punch list is now
 > done. The two items left both require the user to provision external
 > accounts/credentials — there is no more prep work to do without them.
 
 1. **Actually deploy** — user needs to: create a GitHub repo and push (see
-   `DEPLOYMENT.md` §1), get a VPS + Forge account, get a domain, get a
+   `DEPLOYMENT.md` §2), get a VPS + Forge account, get a domain, get a
    Cloudflare account (R2 + Pages), get a Resend account. Then follow
-   `DEPLOYMENT.md` end to end. Everything on the code/config side is ready.
+   `DEPLOYMENT.md` end to end (§0 first — the legal/compliance checklist).
+   Everything on the code/config side is ready.
 2. **Wire real Moyasar sandbox keys** and verify the checkout + webhook loop
    end-to-end; fix any field-name mismatches (limitation #1). Best done after
    deployment (needs a real callback URL).
@@ -293,7 +351,7 @@ route-based code splitting via `React.lazy`).
 
 ---
 
-## 6. Key Decisions to Remember
+## 7. Key Decisions to Remember
 
 - **General Ledger = computed**, never stored. Reports read from posted
   `journal_entry_lines`. Raw-SQL report queries **must** re-apply the
