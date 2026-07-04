@@ -2,12 +2,18 @@
 
 > **Purpose of this file:** single source of truth for where the project stands.
 > Read this first when starting a new chat session. Update the "Done" / "Next"
-> sections as work progresses. Last updated: **2026-07-03** (UI redesign +
-> dark mode pass — all code-side spec work plus visual polish is done; only
-> user-provisioned deployment and live Moyasar keys remain).
+> sections as work progresses. Last updated: **2026-07-04** (brand identity
+> pass — gold palette + real logo, replacing the generic green theme).
 
 URS is a **multi-tenant SaaS cloud accounting platform** for the Saudi market,
 built from the spec in `الدراسة الفنية والتقنية.pdf` (Arabic technical study).
+
+**Brand context:** URS is the parent company; this accounting app is one of
+several products they build. Each product gets its own accent color for
+visual distinction — **this one is gold/yellow** (sampled from
+`design/logoaccounting.png`, a bar-chart-growth icon + "URS ACCOUNTING"
+wordmark). Don't casually change the accent color back to a generic default —
+it was deliberately picked to match this specific product's logo.
 
 ---
 
@@ -228,6 +234,28 @@ This machine required manual setup that a fresh clone will also need:
   the language switcher. Dashboard chart colors/tooltip are theme-aware.
 - Verified in-browser (light + dark) via screenshots: login, dashboard,
   tables, and modals all render correctly with no console errors.
+
+### Brand identity — gold palette + real logo (2026-07-04)
+- Replaced the emerald-green accent with gold/amber, sampled directly from
+  `design/logoaccounting.png` (the actual company logo for this product —
+  see the brand-context note near the top of this file for why gold
+  specifically). `--accent` ≈ `#ecc94a` light / `#f2cb4c` dark.
+- **Two-tone accent system, don't collapse this back to one color:** bright
+  gold (`--accent`) is for *fills* (buttons, active-nav background, the
+  logo) and needs dark text on top of it via the new `--accent-ink` token
+  (`#241b05` fixed, both themes) — white text on gold fails contrast.
+  A separate `--accent-strong` (deep amber-brown light / bright gold dark)
+  is for gold used directly *as text/links on a surface*, where the bright
+  fill color is unreadable. Any new link/button styling must pick the right
+  one of these three (`accent` for fills, `accent-ink` for text-on-fills,
+  `accent-strong` for text-on-surface) — using bare `text-accent` for a
+  link is a bug, not a style choice.
+- Cropped the logo's bar-chart glyph into `src/assets/logo-icon.png`, used
+  in the sidebar header, Login, and Register in place of the old plain "U"
+  square, and as the browser favicon (`public/favicon.png`).
+- Dashboard chart colors and status `Badge` colors (green/red/yellow/blue/
+  gray) were deliberately left alone — those are financial/status semantics
+  (revenue=green, overdue=red, etc.), independent of the brand accent.
 
 ---
 
