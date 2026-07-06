@@ -17,7 +17,7 @@ function applyDirection(lang: string) {
   document.documentElement.lang = lang
 }
 
-const initialLanguage = localStorage.getItem(STORAGE_KEY) ?? 'en'
+const initialLanguage = localStorage.getItem(STORAGE_KEY) ?? 'ar'
 
 i18n
   .use(initReactI18next)

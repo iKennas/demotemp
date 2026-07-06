@@ -5,6 +5,7 @@ import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Paginated } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconChevronStart, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', type: 'individual', email: '', phone: '', tax_number: '', status: 'active' }
@@ -94,7 +95,7 @@ export default function Customers() {
         title={t('customers.pageTitle')}
         action={
           can('customers.manage') && (
-            <Button onClick={() => setOpen(true)}>{t('customers.newCustomer')}</Button>
+            <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('customers.newCustomer')}</Button>
           )
         }
       />
@@ -206,7 +207,8 @@ export default function Customers() {
         ) : (
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent-strong hover:underline">
+              <button onClick={() => setShowStatement(false)} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
+                <IconChevronStart size={14} />
                 {t('customers.backToDetails')}
               </button>
               <Button

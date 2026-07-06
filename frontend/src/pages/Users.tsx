@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, User } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const ROLES = ['Company Owner', 'Accountant', 'Employee']
@@ -76,7 +77,7 @@ export default function Users() {
 
   return (
     <div>
-      <PageHeader title={t('users.pageTitle')} action={can('users.manage') && <Button onClick={() => setOpen(true)}>{t('users.inviteTeammate')}</Button>} />
+      <PageHeader title={t('users.pageTitle')} action={can('users.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('users.inviteTeammate')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('users.emptyMessage')} />

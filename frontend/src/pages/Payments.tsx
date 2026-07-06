@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount, Customer, Paginated, Supplier } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Payment {
@@ -66,7 +67,7 @@ export default function Payments() {
 
   return (
     <div>
-      <PageHeader title={t('payments.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('payments.recordPayment')}</Button>} />
+      <PageHeader title={t('payments.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('payments.recordPayment')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('payments.emptyMessage')} />

@@ -5,6 +5,7 @@ import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Supplier } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconChevronStart, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', email: '', phone: '', tax_number: '', status: 'active' }
@@ -85,7 +86,7 @@ export default function Suppliers() {
     <div>
       <PageHeader
         title={t('suppliers.pageTitle')}
-        action={can('suppliers.manage') && <Button onClick={() => setOpen(true)}>{t('suppliers.newSupplier')}</Button>}
+        action={can('suppliers.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('suppliers.newSupplier')}</Button>}
       />
       <div className="mb-4 max-w-xs">
         <Input placeholder={t('suppliers.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
@@ -181,7 +182,8 @@ export default function Suppliers() {
         ) : (
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <button onClick={() => setShowStatement(false)} className="text-xs font-medium text-accent-strong hover:underline">
+              <button onClick={() => setShowStatement(false)} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
+                <IconChevronStart size={14} />
                 {t('suppliers.backToDetails')}
               </button>
               <Button

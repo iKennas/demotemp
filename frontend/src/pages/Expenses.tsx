@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
 import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Expense {
@@ -56,7 +57,7 @@ export default function Expenses() {
 
   return (
     <div>
-      <PageHeader title={t('expenses.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('expenses.recordExpense')}</Button>} />
+      <PageHeader title={t('expenses.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('expenses.recordExpense')}</Button>} />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('expenses.emptyMessage')} />

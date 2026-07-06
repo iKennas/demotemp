@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount } from '../types'
 import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { account_name: '', bank_name: '', account_number: '', iban: '', opening_balance: '0' }
@@ -84,7 +85,7 @@ export default function BankAccounts() {
 
   return (
     <div>
-      <PageHeader title={t('bankAccounts.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}>{t('bankAccounts.newBankAccount')}</Button>} />
+      <PageHeader title={t('bankAccounts.pageTitle')} action={can('cash.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('bankAccounts.newBankAccount')}</Button>} />
       <Card>
         {(!data || data.length === 0) && !isLoading ? (
           <EmptyState message={t('bankAccounts.emptyMessage')} />

@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Company, Plan } from '../types'
 import { Badge, Button, Card, ErrorText, Field, Input, PageHeader } from '../components/ui'
+import { IconCheck } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Subscription {
@@ -212,6 +213,7 @@ export default function Settings() {
           <ErrorText>{error}</ErrorText>
           {can('settings.manage') && (
             <Button type="submit" disabled={updateMutation.isPending}>
+              {saved && <IconCheck size={16} />}
               {updateMutation.isPending ? t('common.saving') : saved ? t('settings.saved') : t('settings.saveChanges')}
             </Button>
           )}

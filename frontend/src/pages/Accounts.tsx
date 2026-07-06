@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account } from '../types'
 import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { code: '', name: '', type: 'asset', normal_balance: 'debit' }
@@ -43,7 +44,7 @@ export default function Accounts() {
     <div>
       <PageHeader
         title={t('accounts.pageTitle')}
-        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>{t('accounts.newAccount')}</Button>}
+        action={can('finance.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('accounts.newAccount')}</Button>}
       />
       <Card>
         <table className="w-full text-left text-sm">

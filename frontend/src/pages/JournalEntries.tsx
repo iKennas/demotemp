@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconClose, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Line { account_id: string; debit: string; credit: string; description: string }
@@ -95,7 +96,7 @@ export default function JournalEntries() {
     <div>
       <PageHeader
         title={t('journalEntries.pageTitle')}
-        action={can('finance.manage') && <Button onClick={() => setOpen(true)}>{t('journalEntries.newEntry')}</Button>}
+        action={can('finance.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('journalEntries.newEntry')}</Button>}
       />
       <Card>
         {data?.data.length === 0 && !isLoading ? (
@@ -195,13 +196,14 @@ export default function JournalEntries() {
                 <div className="col-span-1 flex items-center justify-center">
                   {lines.length > 2 && (
                     <button type="button" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))} className="text-faint hover:text-red-600">
-                      ✕
+                      <IconClose size={16} />
                     </button>
                   )}
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="text-xs font-medium text-accent-strong hover:underline">
+            <button type="button" onClick={() => setLines((ls) => [...ls, { ...emptyLine }])} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
+              <IconPlus size={14} />
               {t('journalEntries.addLine')}
             </button>
           </div>

@@ -5,6 +5,7 @@ import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Product } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const empty = { name: '', type: 'product', sale_price: '', cost_price: '', tax_rate: '15', track_inventory: true, quantity_on_hand: '0' }
@@ -87,7 +88,7 @@ export default function Products() {
     <div>
       <PageHeader
         title={t('products.pageTitle')}
-        action={can('inventory.manage') && <Button onClick={() => setOpen(true)}>{t('products.newProduct')}</Button>}
+        action={can('inventory.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('products.newProduct')}</Button>}
       />
       <div className="mb-4 max-w-xs">
         <Input placeholder={t('products.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />

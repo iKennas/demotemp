@@ -5,6 +5,7 @@ import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Invoice, InvoiceItem, Paginated, Product, Supplier } from '../types'
 import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
 const emptyItem: InvoiceItem = { product_id: null, description: '', quantity: 1, unit_price: 0, tax_rate: 15, discount: 0 }
@@ -124,7 +125,7 @@ export default function Invoices() {
     <div>
       <PageHeader
         title={t('invoices.pageTitle')}
-        action={can('invoices.manage') && <Button onClick={() => setOpen(true)}>{t('invoices.newInvoice')}</Button>}
+        action={can('invoices.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('invoices.newInvoice')}</Button>}
       />
       <div className="mb-4 max-w-xs">
         <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}>
@@ -226,7 +227,8 @@ export default function Invoices() {
                 <div className="col-span-1 flex items-center justify-end pr-1 text-sm text-subtle">{lineTotal(it).toFixed(2)}</div>
               </div>
             ))}
-            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="text-xs font-medium text-accent-strong hover:underline">
+            <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
+              <IconPlus size={14} />
               {t('invoices.addItem')}
             </button>
           </div>

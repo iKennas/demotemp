@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IconChevronEnd, IconChevronStart, IconClose, IconInbox } from './icons'
 
 export function Button({
   variant = 'primary',
@@ -71,7 +72,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-content">{title}</h2>
           <button onClick={onClose} className="rounded-md p-1 text-faint transition-colors hover:bg-muted hover:text-content" aria-label={t('common.close')}>
-            ✕
+            <IconClose size={18} />
           </button>
         </div>
         {children}
@@ -97,6 +98,7 @@ export function ErrorText({ children }: { children: ReactNode }) {
 export function EmptyState({ message, action }: { message: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+      <IconInbox size={32} className="text-faint" />
       <p className="text-sm text-faint">{message}</p>
       {action}
     </div>
@@ -132,11 +134,13 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
       <span>{t('pagination.showing', { from, to, total })}</span>
       <div className="flex items-center gap-2">
         <Button variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+          <IconChevronStart size={16} />
           {t('pagination.prev')}
         </Button>
         <span className="px-2 text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
         <Button variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
           {t('pagination.next')}
+          <IconChevronEnd size={16} />
         </Button>
       </div>
     </div>

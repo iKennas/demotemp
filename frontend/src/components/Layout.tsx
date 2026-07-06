@@ -1,34 +1,55 @@
+import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import logoIcon from '../assets/logo-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supportedLanguages } from '../i18n'
+import {
+  IconBank,
+  IconBox,
+  IconCard,
+  IconDashboard,
+  IconExpense,
+  IconHistory,
+  IconJournal,
+  IconLedger,
+  IconReceipt,
+  IconReports,
+  IconRevenue,
+  IconSettings,
+  IconShield,
+  IconStorefront,
+  IconUser,
+  IconUsers,
+  type IconProps,
+} from './icons'
 
 interface NavItem {
   to: string
   labelKey: string
+  icon: ComponentType<IconProps>
   permission?: string
   roleOnly?: string
 }
 
 const NAV: NavItem[] = [
-  { to: '/', labelKey: 'nav.dashboard' },
-  { to: '/accounts', labelKey: 'nav.accounts', permission: 'finance.view' },
-  { to: '/journal-entries', labelKey: 'nav.journalEntries', permission: 'finance.view' },
-  { to: '/reports', labelKey: 'nav.reports', permission: 'finance.view' },
-  { to: '/customers', labelKey: 'nav.customers', permission: 'customers.view' },
-  { to: '/suppliers', labelKey: 'nav.suppliers', permission: 'suppliers.view' },
-  { to: '/invoices', labelKey: 'nav.invoices', permission: 'invoices.view' },
-  { to: '/payments', labelKey: 'nav.payments', permission: 'cash.view' },
-  { to: '/expenses', labelKey: 'nav.expenses', permission: 'cash.view' },
-  { to: '/revenues', labelKey: 'nav.revenues', permission: 'cash.view' },
-  { to: '/bank-accounts', labelKey: 'nav.bankAccounts', permission: 'cash.view' },
-  { to: '/products', labelKey: 'nav.products', permission: 'inventory.view' },
-  { to: '/users', labelKey: 'nav.team', permission: 'users.view' },
-  { to: '/audit-log', labelKey: 'nav.auditLog', permission: 'audit.view' },
-  { to: '/settings', labelKey: 'nav.settings', permission: 'settings.view' },
-  { to: '/admin', labelKey: 'nav.admin', roleOnly: 'Super Admin' },
+  { to: '/', labelKey: 'nav.dashboard', icon: IconDashboard },
+  { to: '/accounts', labelKey: 'nav.accounts', icon: IconLedger, permission: 'finance.view' },
+  { to: '/journal-entries', labelKey: 'nav.journalEntries', icon: IconJournal, permission: 'finance.view' },
+  { to: '/reports', labelKey: 'nav.reports', icon: IconReports, permission: 'finance.view' },
+  { to: '/customers', labelKey: 'nav.customers', icon: IconUser, permission: 'customers.view' },
+  { to: '/suppliers', labelKey: 'nav.suppliers', icon: IconStorefront, permission: 'suppliers.view' },
+  { to: '/invoices', labelKey: 'nav.invoices', icon: IconReceipt, permission: 'invoices.view' },
+  { to: '/payments', labelKey: 'nav.payments', icon: IconCard, permission: 'cash.view' },
+  { to: '/expenses', labelKey: 'nav.expenses', icon: IconExpense, permission: 'cash.view' },
+  { to: '/revenues', labelKey: 'nav.revenues', icon: IconRevenue, permission: 'cash.view' },
+  { to: '/bank-accounts', labelKey: 'nav.bankAccounts', icon: IconBank, permission: 'cash.view' },
+  { to: '/products', labelKey: 'nav.products', icon: IconBox, permission: 'inventory.view' },
+  { to: '/users', labelKey: 'nav.team', icon: IconUsers, permission: 'users.view' },
+  { to: '/audit-log', labelKey: 'nav.auditLog', icon: IconHistory, permission: 'audit.view' },
+  { to: '/settings', labelKey: 'nav.settings', icon: IconSettings, permission: 'settings.view' },
+  { to: '/admin', labelKey: 'nav.admin', icon: IconShield, roleOnly: 'Super Admin' },
 ]
 
 function SunIcon() {
@@ -76,20 +97,24 @@ export default function Layout() {
           </div>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          {visible.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'bg-accent-soft text-accent-strong' : 'text-subtle hover:bg-muted hover:text-content'
-                }`
-              }
-            >
-              {t(item.labelKey)}
-            </NavLink>
-          ))}
+          {visible.map((item) => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive ? 'bg-accent-soft text-accent-strong' : 'text-subtle hover:bg-muted hover:text-content'
+                  }`
+                }
+              >
+                <Icon size={18} className="shrink-0" />
+                {t(item.labelKey)}
+              </NavLink>
+            )
+          })}
         </nav>
         <div className="space-y-3 border-t border-line p-4">
           <div className="flex items-center gap-2">
