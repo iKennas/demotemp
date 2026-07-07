@@ -101,8 +101,8 @@ export default function Dashboard() {
 
   const chart =
     theme === 'dark'
-      ? { grid: '#29323f', tick: '#6f7c8b', revenue: '#10b981', expense: '#f87171', net: '#34d399' }
-      : { grid: '#eef1f4', tick: '#7b8794', revenue: '#34d399', expense: '#f87171', net: '#059669' }
+      ? { grid: '#29323f', tick: '#6f7c8b', revenue: '#63b93e', expense: '#f87171', net: '#8fd96c' }
+      : { grid: '#eef1f4', tick: '#7b8794', revenue: '#7cc55e', expense: '#f87171', net: '#3b7423' }
 
   const { data: pl } = useQuery({
     queryKey: ['dashboard-pl'],

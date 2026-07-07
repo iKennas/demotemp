@@ -11,10 +11,12 @@ built from the spec in `الدراسة الفنية والتقنية.pdf` (Arabi
 
 **Brand context:** URS is the parent company; this accounting app is one of
 several products they build. Each product gets its own accent color for
-visual distinction — **this one is gold/yellow** (sampled from
-`design/logoaccounting.png`, a bar-chart-growth icon + "URS ACCOUNTING"
-wordmark). Don't casually change the accent color back to a generic default —
-it was deliberately picked to match this specific product's logo.
+visual distinction — **this one is green** (`#58a838`, sampled from the
+current `design/logoaccounting.png`, a bar-chart-growth icon + "URS
+ACCOUNTING" wordmark). It was gold until 2026-07-07, when the client
+replaced the logo file with a green version and asked for the rebrand.
+Don't casually change the accent color to a generic default — it is
+deliberately sampled from this specific product's logo.
 
 ---
 
@@ -257,6 +259,21 @@ This machine required manual setup that a fresh clone will also need:
 - Dashboard chart colors and status `Badge` colors (green/red/yellow/blue/
   gray) were deliberately left alone — those are financial/status semantics
   (revenue=green, overdue=red, etc.), independent of the brand accent.
+
+### Rebrand to green (2026-07-07)
+- Client replaced `design/logoaccounting.png` with a green version and
+  requested the accent switch from gold to green. Same two-tone token
+  system, new values sampled from the logo: light `--accent #58a838` /
+  `--accent-strong #3b7423` / `--accent-ink #0f2306`; dark `--accent
+  #63b93e` / `--accent-strong #8fd96c`. Regenerated `src/assets/
+  logo-icon.png` + `public/favicon.png` from the new file — note the new
+  source PNG has an **opaque black background** (the old one was
+  transparent), so the glyph is extracted as a solid brand-green
+  silhouette with brightness-derived alpha; don't crop it raw.
+- Dashboard chart revenue/net greens re-tuned to the brand green family
+  (they read as one palette now that the accent itself is green).
+- Verified via computed-style inspection in both themes (button fill/ink,
+  links, active nav, sidebar logo).
 
 ---
 

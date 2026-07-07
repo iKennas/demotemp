@@ -3,12 +3,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Semantic tokens — referenced as utilities (bg-surface, text-content, …).
-   Values swap under .dark, so components stay theme-agnostic. Brand gold
-   (sampled from the URS Accounting logo) is the single accent, used
-   sparingly for primary actions, active nav, links, and the logo mark.
+   Values swap under .dark, so components stay theme-agnostic. Brand green
+   (#58a838, sampled from the URS Accounting logo) is the single accent,
+   used sparingly for primary actions, active nav, links, and the logo mark.
    --accent is a bright fill color (buttons, icon, badges) and needs dark
-   text on top of it (--accent-ink) since white-on-gold fails contrast.
-   --accent-strong is a separately-tuned shade for gold used AS text/links
+   text on top of it (--accent-ink) since white-on-green fails contrast.
+   --accent-strong is a separately-tuned shade for green used AS text/links
    directly on a surface, where the bright fill color reads poorly. */
 @theme inline {
   --color-app: var(--app);
@@ -33,11 +33,11 @@
   --content: #0f172a;
   --subtle: #52606d;
   --faint: #7b8794;
-  --accent: #ecc94a;
-  --accent-hover: #d9ae33;
-  --accent-soft: #fdf3d9;
-  --accent-strong: #8a6212;
-  --accent-ink: #241b05;
+  --accent: #58a838;
+  --accent-hover: #4c9330;
+  --accent-soft: #eef7e6;
+  --accent-strong: #3b7423;
+  --accent-ink: #0f2306;
   color-scheme: light;
 }
 
@@ -49,11 +49,11 @@
   --content: #e7ebf0;
   --subtle: #9fabb8;
   --faint: #6f7c8b;
-  --accent: #f2cb4c;
-  --accent-hover: #f7d66c;
-  --accent-soft: color-mix(in oklab, #f2cb4c 18%, transparent);
-  --accent-strong: #f6d875;
-  --accent-ink: #241b05;
+  --accent: #63b93e;
+  --accent-hover: #79ca55;
+  --accent-soft: color-mix(in oklab, #63b93e 18%, transparent);
+  --accent-strong: #8fd96c;
+  --accent-ink: #0f2306;
   color-scheme: dark;
 }
 
