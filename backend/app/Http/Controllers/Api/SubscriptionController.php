@@ -11,6 +11,12 @@ class SubscriptionController extends Controller
     public function show(Request $request)
     {
         $company = $request->user()->company()->with('plan')->first();
+        if (! $company) {
+            // Platform-level roles may not be tied to a real company.
+            // Avoid 500s and let the frontend render an empty billing state.
+            return response()->json(['data' => null, 'plan' => null, 'company_status' => null]);
+        }
+
         $subscription = $company->subscriptions()->latest('id')->first();
 
         return response()->json(['data' => $subscription, 'plan' => $company->plan, 'company_status' => $company->status]);

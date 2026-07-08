@@ -2,7 +2,10 @@ import axios from 'axios'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  headers: { Accept: 'application/json' },
+  // ngrok-skip-browser-warning bypasses ngrok's free-tier interstitial page
+  // when the API is tunneled through ngrok for a demo; harmless no-op header
+  // against any other backend.
+  headers: { Accept: 'application/json', 'ngrok-skip-browser-warning': 'true' },
 })
 
 api.interceptors.request.use((config) => {

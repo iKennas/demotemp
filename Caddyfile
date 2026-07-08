@@ -1,0 +1,12 @@
+# Reverse proxy for the URS demo. Caddy automatically obtains and renews a free
+# Let's Encrypt certificate for SERVER_NAME, so the API is served over HTTPS
+# (required — the frontend on Cloudflare Pages is HTTPS and browsers block
+# HTTPS pages from calling an HTTP API).
+{
+	email {$CADDY_EMAIL}
+}
+
+{$SERVER_NAME} {
+	encode zstd gzip
+	reverse_proxy app:8000
+}

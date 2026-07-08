@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import logoIcon from '../assets/logo-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -72,6 +72,7 @@ function MoonIcon() {
 export default function Layout() {
   const { user, roles, can, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const { t, i18n } = useTranslation()
   const { theme, toggle } = useTheme()
 
@@ -146,7 +147,8 @@ export default function Layout() {
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto p-8">
-        <Outlet />
+        {/* Force remount on route change to avoid brief stale content during transitions. */}
+        <Outlet key={location.pathname} />
       </main>
     </div>
   )

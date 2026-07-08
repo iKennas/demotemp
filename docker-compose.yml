@@ -1,0 +1,80 @@
+# URS — one-command demo stack.
+#
+#   docker compose up -d --build
+#
+# Brings up:
+#   - db     : MySQL, data persisted in a named volume
+#   - app    : the Laravel API (migrates + seeds itself on first boot)
+#   - caddy  : reverse proxy that fetches a free HTTPS certificate automatically
+#
+# Configure SERVER_NAME / APP_URL in a `.env` file next to this one
+# (copy .env.demo.example). Using <your-public-ip>.nip.io means you get valid
+# HTTPS without owning a domain.
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-urs_accounting}
+      MYSQL_USER: ${DB_USERNAME:-urs_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-urs_demo_pw}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-urs_root_pw}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-urs_root_pw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_NAME: URS
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:?set APP_URL in your .env (e.g. https://1.2.3.4.nip.io)}
+      APP_LOCALE: en
+      APP_FALLBACK_LOCALE: en
+      LOG_CHANNEL: stack
+      LOG_LEVEL: error
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: ${DB_DATABASE:-urs_accounting}
+      DB_USERNAME: ${DB_USERNAME:-urs_user}
+      DB_PASSWORD: ${DB_PASSWORD:-urs_demo_pw}
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: sync
+      FILESYSTEM_DISK: local
+      MAIL_MAILER: log
+    volumes:
+      - app_storage:/var/www/html/storage
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SERVER_NAME: ${SERVER_NAME:?set SERVER_NAME in your .env (e.g. 1.2.3.4.nip.io)}
+      CADDY_EMAIL: ${CADDY_EMAIL:-admin@example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  db_data:
+  app_storage:
+  caddy_data:
+  caddy_config:
