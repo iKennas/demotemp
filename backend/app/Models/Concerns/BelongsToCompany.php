@@ -12,17 +12,38 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 trait BelongsToCompany
 {
+    private static function resolveTenantCompanyId(): ?int
+    {
+        if (! auth()->check()) {
+            return null;
+        }
+
+        $companyId = auth()->user()->company_id;
+        if ($companyId) {
+            return (int) $companyId;
+        }
+
+        // Demo fallback: let platform admins without a company work against the
+        // seeded demo company instead of crashing on company_id constraints.
+        if (auth()->user()->hasRole('Super Admin')) {
+            return Company::query()->orderBy('id')->value('id');
+        }
+
+        return null;
+    }
+
     public static function bootBelongsToCompany(): void
     {
         static::addGlobalScope('company', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->company_id) {
-                $builder->where($builder->getModel()->getTable().'.company_id', auth()->user()->company_id);
+            $tenantCompanyId = self::resolveTenantCompanyId();
+            if ($tenantCompanyId) {
+                $builder->where($builder->getModel()->getTable().'.company_id', $tenantCompanyId);
             }
         });
 
         static::creating(function ($model) {
-            if (! $model->company_id && auth()->check()) {
-                $model->company_id = auth()->user()->company_id;
+            if (! $model->company_id) {
+                $model->company_id = self::resolveTenantCompanyId();
             }
         });
     }
