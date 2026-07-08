@@ -30,6 +30,7 @@ services:
   app:
     build:
       context: ./backend
+      dockerfile: Dockerfile.vps
     restart: unless-stopped
     depends_on:
       db:
