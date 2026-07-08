@@ -23,13 +23,9 @@ trait BelongsToCompany
             return (int) $companyId;
         }
 
-        // Demo fallback: let platform admins without a company work against the
-        // seeded demo company instead of crashing on company_id constraints.
-        if (auth()->user()->hasRole('Super Admin')) {
-            return Company::query()->orderBy('id')->value('id');
-        }
-
-        return null;
+        // Demo fallback: platform users with no company_id should operate on
+        // the seeded demo company, avoiding null company_id writes/queries.
+        return Company::query()->orderBy('id')->value('id');
     }
 
     public static function bootBelongsToCompany(): void
