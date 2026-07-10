@@ -1,46 +1,69 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconChevronEnd, IconChevronStart, IconClose, IconInbox } from './icons'
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   className = '',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' | 'ghost' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  size?: 'sm' | 'md'
+}) {
   const variants: Record<string, string> = {
-    primary: 'bg-accent text-accent-ink shadow-sm hover:bg-accent-hover disabled:opacity-50',
-    secondary: 'border border-line bg-surface text-subtle hover:bg-muted hover:text-content disabled:opacity-50',
-    danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 disabled:opacity-50',
-    ghost: 'text-subtle hover:bg-muted hover:text-content disabled:opacity-50',
+    primary: 'bg-accent text-accent-ink shadow-sm hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50',
+    secondary: 'border border-line bg-surface text-subtle hover:bg-muted hover:text-content active:scale-[0.98] disabled:opacity-50',
+    danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 active:scale-[0.98] disabled:opacity-50',
+    ghost: 'text-subtle hover:bg-muted hover:text-content active:scale-[0.98] disabled:opacity-50',
+  }
+  const sizes: Record<string, string> = {
+    sm: 'px-2.5 py-1.5 text-xs',
+    md: 'px-4 py-2 text-sm',
   }
   return (
     <button
-      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   )
 }
 
-const fieldClasses =
+const fieldBase =
   'w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-content placeholder:text-faint transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 disabled:opacity-60'
 
 export function Input({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={`${fieldClasses} ${className}`} {...props} />
+  return <input className={`${fieldBase} ${className}`} {...props} />
+}
+
+export function Textarea({ className = '', ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea className={`${fieldBase} resize-none ${className}`} {...props} />
 }
 
 export function Select({ className = '', children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select className={`${fieldClasses} ${className}`} {...props}>
-      {children}
-    </select>
+    <div className={`relative ${className}`}>
+      <select
+        className="w-full appearance-none rounded-lg border border-line bg-surface px-3 py-2 pr-9 text-sm text-content transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 disabled:opacity-60"
+        {...props}
+      >
+        {children}
+      </select>
+      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-faint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </span>
+    </div>
   )
 }
 
-export function Field({ label, children }: { label: string; children: ReactNode }) {
+export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-subtle">{label}</span>
       {children}
+      {hint && <span className="mt-1 block text-xs text-faint">{hint}</span>}
     </label>
   )
 }
@@ -57,22 +80,26 @@ export function Badge({ children, color = 'gray' }: { children: ReactNode; color
     red: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300',
     blue: 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300',
   }
-  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors[color]}`}>{children}</span>
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[color]}`}>{children}</span>
 }
 
-export function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+export function Modal({ open, onClose, title, children, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
   const { t } = useTranslation()
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-line bg-surface p-6 shadow-xl"
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-2xl ${wide ? 'max-w-2xl' : 'max-w-lg'}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-content">{title}</h2>
-          <button onClick={onClose} className="rounded-md p-1 text-faint transition-colors hover:bg-muted hover:text-content" aria-label={t('common.close')}>
-            <IconClose size={18} />
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-faint transition-colors hover:bg-muted hover:text-content"
+            aria-label={t('common.close')}
+          >
+            <IconClose size={16} />
           </button>
         </div>
         {children}
@@ -81,10 +108,13 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   )
 }
 
-export function PageHeader({ title, action }: { title: string; action?: ReactNode }) {
+export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight text-content">{title}</h1>
+    <div className="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-content">{title}</h1>
+        {subtitle && <p className="mt-0.5 text-sm text-faint">{subtitle}</p>}
+      </div>
       {action}
     </div>
   )
@@ -92,13 +122,22 @@ export function PageHeader({ title, action }: { title: string; action?: ReactNod
 
 export function ErrorText({ children }: { children: ReactNode }) {
   if (!children) return null
-  return <p className="mt-2 text-sm text-red-600 dark:text-red-400">{children}</p>
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+        <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
+      </svg>
+      {children}
+    </div>
+  )
 }
 
 export function EmptyState({ message, action }: { message: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-      <IconInbox size={32} className="text-faint" />
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+        <IconInbox size={22} className="text-faint" />
+      </div>
       <p className="text-sm text-faint">{message}</p>
       {action}
     </div>
@@ -112,6 +151,10 @@ export function Spinner({ className = '' }: { className?: string }) {
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
     </svg>
   )
+}
+
+export function Divider({ className = '' }: { className?: string }) {
+  return <div className={`border-t border-line ${className}`} />
 }
 
 interface PaginationProps {
@@ -131,16 +174,16 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
 
   return (
     <div className="flex items-center justify-between border-t border-line px-4 py-3 text-sm text-subtle">
-      <span>{t('pagination.showing', { from, to, total })}</span>
-      <div className="flex items-center gap-2">
-        <Button variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
-          <IconChevronStart size={16} />
+      <span className="text-xs text-faint">{t('pagination.showing', { from, to, total })}</span>
+      <div className="flex items-center gap-1.5">
+        <Button size="sm" variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+          <IconChevronStart size={14} />
           {t('pagination.prev')}
         </Button>
-        <span className="px-2 text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
-        <Button variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
+        <span className="min-w-[4rem] text-center text-xs text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
+        <Button size="sm" variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
           {t('pagination.next')}
-          <IconChevronEnd size={16} />
+          <IconChevronEnd size={14} />
         </Button>
       </div>
     </div>
