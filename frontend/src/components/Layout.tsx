@@ -143,6 +143,15 @@ export default function Layout() {
   }, [location.pathname])
 
   useEffect(() => {
+    if (!sidebarOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [sidebarOpen])
+
+  useEffect(() => {
     setCollapsedSections((prev) => {
       let changed = false
       const next = new Set(prev)
@@ -182,7 +191,8 @@ export default function Layout() {
         </div>
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav className="min-h-0 overflow-y-auto overscroll-contain px-3 py-3 lg:py-4">
+        <div className="space-y-1">
         {visibleSections.map((section) => {
           const navLinks = (
             <div className="space-y-0.5 pb-1">
@@ -240,10 +250,13 @@ export default function Layout() {
             </div>
           )
         })}
+        </div>
       </nav>
 
-      <div className="shrink-0 space-y-3 border-t border-line bg-surface p-4">
-        <LocaleThemeControls />
+      <div className="shrink-0 space-y-2 border-t border-line bg-surface p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:space-y-3 lg:p-4">
+        <div className="hidden lg:block">
+          <LocaleThemeControls />
+        </div>
         <div className="flex items-center gap-2.5 rounded-lg p-1">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent-strong">
             {user?.name?.charAt(0).toUpperCase()}
@@ -278,7 +291,7 @@ export default function Layout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 start-0 z-50 flex h-screen max-h-screen w-64 shrink-0 flex-col border-e border-line bg-surface transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+        className={`fixed start-0 top-0 z-50 grid h-dvh max-h-dvh w-64 grid-rows-[auto_1fr_auto] overflow-hidden border-e border-line bg-surface transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full rtl:lg:translate-x-0'
         }`}
       >
