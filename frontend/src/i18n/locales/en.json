@@ -20,7 +20,16 @@
     "auditLog": "Audit Log",
     "settings": "Company Settings",
     "admin": "Platform Admin",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "openMenu": "Open menu",
+    "sections": {
+      "overview": "Overview",
+      "accounting": "Accounting",
+      "sales": "Sales & Billing",
+      "cash": "Cash & Banking",
+      "inventory": "Inventory",
+      "administration": "Administration"
+    }
   },
   "theme": {
     "switchToLight": "Switch to light mode",
@@ -47,6 +56,7 @@
   },
   "dashboard": {
     "welcomeBack": "Welcome back, {{name}}",
+    "subtitle": "Here's a quick overview of your business finances.",
     "revenueAllTime": "Revenue (all time)",
     "expensesAllTime": "Expenses (all time)",
     "netIncome": "Net Income",
@@ -54,6 +64,16 @@
     "totalLiabilities": "Total Liabilities",
     "totalEquity": "Total Equity",
     "trendTitle": "Revenue vs Expenses (last 6 months)",
+    "chartRevenue": "Revenue",
+    "chartExpense": "Expenses",
+    "chartNet": "Net",
+    "dueDate": "due {{date}}",
+    "sections": {
+      "performance": "Performance",
+      "balanceSheet": "Balance Sheet",
+      "alerts": "Needs Attention",
+      "recentActivity": "Recent Activity"
+    },
     "noPermission": "You don't have permission to view financial summaries.",
     "overdueInvoices": "Overdue Invoices ({{count}})",
     "nothingOverdue": "Nothing overdue.",
@@ -73,6 +93,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close",
+    "confirm": "Confirm",
     "apply": "Apply",
     "system": "system",
     "you": "you",
@@ -157,6 +178,7 @@
   },
   "reports": {
     "pageTitle": "Reports",
+    "subtitle": "View financial statements and export them as PDF.",
     "trialBalance": "Trial Balance",
     "profitAndLoss": "Profit & Loss",
     "balanceSheet": "Balance Sheet",
@@ -247,6 +269,7 @@
     "pricePlaceholder": "Price",
     "taxPlaceholder": "Tax%",
     "addItem": "Add item",
+    "lineItems": "Line items",
     "total": "Total: {{amount}}",
     "saveDraft": "Save Draft Invoice",
     "status": "Status",

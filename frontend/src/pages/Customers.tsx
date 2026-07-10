@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Customer, Paginated } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, FilterBar, Input, LoadingState, Modal, PageHeader, Pagination, SearchInput, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableHeaderCell, TableRow } from '../components/ui'
 import { IconChevronStart, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -99,42 +99,46 @@ export default function Customers() {
           )
         }
       />
-      <div className="mb-4 max-w-xs">
-        <Input placeholder={t('customers.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
-      </div>
+      <FilterBar>
+        <SearchInput placeholder={t('customers.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
+      </FilterBar>
       <Card>
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={search ? t('customers.emptySearch') : t('customers.emptyDefault')} />
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
-              <tr>
-                <th className="px-4 py-3">{t('customers.colName')}</th>
-                <th className="px-4 py-3">{t('customers.colType')}</th>
-                <th className="px-4 py-3">{t('customers.colEmail')}</th>
-                <th className="px-4 py-3">{t('customers.colPhone')}</th>
-                <th className="px-4 py-3">{t('customers.colStatus')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {isLoading && (
+          <TableContainer>
+            <Table>
+              <TableHead>
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={5}>{t('common.loading')}</td>
+                  <TableHeaderCell>{t('customers.colName')}</TableHeaderCell>
+                  <TableHeaderCell>{t('customers.colType')}</TableHeaderCell>
+                  <TableHeaderCell>{t('customers.colEmail')}</TableHeaderCell>
+                  <TableHeaderCell>{t('customers.colPhone')}</TableHeaderCell>
+                  <TableHeaderCell>{t('customers.colStatus')}</TableHeaderCell>
                 </tr>
-              )}
-              {data?.data.map((c) => (
-                <tr key={c.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(c)}>
-                  <td className="px-4 py-3 font-medium text-content">{c.name}</td>
-                  <td className="px-4 py-3 text-subtle">{c.type === 'company' ? t('customers.typeCompany') : t('customers.typeIndividual')}</td>
-                  <td className="px-4 py-3 text-subtle">{c.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{c.phone ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status === 'active' ? t('status.active') : t('status.inactive')}</Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </TableHead>
+              <TableBody>
+                {isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <LoadingState />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {data?.data.map((c) => (
+                  <TableRow key={c.id} onClick={() => setEditing(c)}>
+                    <TableCell className="font-medium text-content">{c.name}</TableCell>
+                    <TableCell className="text-subtle">{c.type === 'company' ? t('customers.typeCompany') : t('customers.typeIndividual')}</TableCell>
+                    <TableCell className="text-subtle">{c.email ?? '—'}</TableCell>
+                    <TableCell className="text-subtle">{c.phone ?? '—'}</TableCell>
+                    <TableCell>
+                      <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status === 'active' ? t('status.active') : t('status.inactive')}</Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />

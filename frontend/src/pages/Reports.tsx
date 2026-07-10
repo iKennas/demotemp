@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
-import { Button, Card, PageHeader, Select } from '../components/ui'
+import { Button, Card, LoadingState, PageHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableHeaderCell, TableRow, Tabs } from '../components/ui'
 
 interface TrialBalanceRow { code: string; name: string; type: string; debit: number; credit: number }
 interface TrialBalance { data: TrialBalanceRow[]; total_debit: number; total_credit: number }
@@ -16,42 +16,44 @@ const fmt = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 
 function TrialBalanceView() {
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['trial-balance'], queryFn: async () => (await api.get<TrialBalance>('/reports/trial-balance')).data })
-  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
+  if (isLoading) return <LoadingState />
   return (
-    <table className="w-full text-left text-sm">
-      <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
-        <tr>
-          <th className="px-4 py-3">{t('reports.colCode')}</th>
-          <th className="px-4 py-3">{t('reports.colAccount')}</th>
-          <th className="px-4 py-3 text-right">{t('reports.colDebit')}</th>
-          <th className="px-4 py-3 text-right">{t('reports.colCredit')}</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-line">
-        {data?.data.map((r) => (
-          <tr key={r.code}>
-            <td className="px-4 py-3 font-mono text-subtle">{r.code}</td>
-            <td className="px-4 py-3 text-content">{r.name}</td>
-            <td className="px-4 py-3 text-right text-subtle">{r.debit ? fmt(r.debit) : '—'}</td>
-            <td className="px-4 py-3 text-right text-subtle">{r.credit ? fmt(r.credit) : '—'}</td>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <tr>
+            <TableHeaderCell>{t('reports.colCode')}</TableHeaderCell>
+            <TableHeaderCell>{t('reports.colAccount')}</TableHeaderCell>
+            <TableHeaderCell className="text-end">{t('reports.colDebit')}</TableHeaderCell>
+            <TableHeaderCell className="text-end">{t('reports.colCredit')}</TableHeaderCell>
           </tr>
-        ))}
-      </tbody>
-      <tfoot className="border-t-2 border-line font-semibold text-content">
-        <tr>
-          <td className="px-4 py-3" colSpan={2}>{t('reports.total')}</td>
-          <td className="px-4 py-3 text-right">{fmt(data?.total_debit ?? 0)}</td>
-          <td className="px-4 py-3 text-right">{fmt(data?.total_credit ?? 0)}</td>
-        </tr>
-      </tfoot>
-    </table>
+        </TableHead>
+        <TableBody>
+          {data?.data.map((r) => (
+            <TableRow key={r.code}>
+              <TableCell className="font-mono text-subtle">{r.code}</TableCell>
+              <TableCell className="text-content">{r.name}</TableCell>
+              <TableCell className="text-end text-subtle">{r.debit ? fmt(r.debit) : '—'}</TableCell>
+              <TableCell className="text-end text-subtle">{r.credit ? fmt(r.credit) : '—'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <tfoot className="border-t-2 border-line font-semibold text-content">
+          <tr>
+            <TableCell colSpan={2}>{t('reports.total')}</TableCell>
+            <TableCell className="text-end">{fmt(data?.total_debit ?? 0)}</TableCell>
+            <TableCell className="text-end">{fmt(data?.total_credit ?? 0)}</TableCell>
+          </tr>
+        </tfoot>
+      </Table>
+    </TableContainer>
   )
 }
 
 function ProfitAndLossView() {
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['pl'], queryFn: async () => (await api.get<PL>('/reports/profit-and-loss')).data })
-  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
+  if (isLoading) return <LoadingState />
   return (
     <div className="p-4">
       <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.revenue')}</h3>
@@ -70,7 +72,7 @@ function ProfitAndLossView() {
       ))}
       <div className="mt-4 flex justify-between border-t-2 border-line pt-2 text-base font-semibold">
         <span>{t('reports.netIncome')}</span>
-        <span className={data && data.net_income < 0 ? 'text-red-600' : 'text-green-600'}>{fmt(data?.net_income ?? 0)}</span>
+        <span className={data && data.net_income < 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}>{fmt(data?.net_income ?? 0)}</span>
       </div>
     </div>
   )
@@ -79,9 +81,9 @@ function ProfitAndLossView() {
 function BalanceSheetView() {
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({ queryKey: ['bs'], queryFn: async () => (await api.get<BS>('/reports/balance-sheet')).data })
-  if (isLoading) return <p className="text-sm text-faint">{t('common.loading')}</p>
+  if (isLoading) return <LoadingState />
   return (
-    <div className="grid grid-cols-2 gap-6 p-4">
+    <div className="grid grid-cols-1 gap-6 p-4 lg:grid-cols-2">
       <div>
         <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.assets')}</h3>
         {data?.assets.map((r) => (
@@ -137,23 +139,28 @@ export default function Reports() {
   const { t } = useTranslation()
   const [tab, setTab] = useState('trial-balance')
 
+  const tabs = [
+    { id: 'trial-balance', label: t('reports.trialBalance') },
+    { id: 'profit-and-loss', label: t('reports.profitAndLoss') },
+    { id: 'balance-sheet', label: t('reports.balanceSheet') },
+  ]
+
   return (
     <div>
       <PageHeader
         title={t('reports.pageTitle')}
+        subtitle={t('reports.subtitle')}
         action={
-          <div className="flex items-center gap-2">
-            <Select value={tab} onChange={(e) => setTab(e.target.value)} className="w-56">
-              <option value="trial-balance">{t('reports.trialBalance')}</option>
-              <option value="profit-and-loss">{t('reports.profitAndLoss')}</option>
-              <option value="balance-sheet">{t('reports.balanceSheet')}</option>
-            </Select>
-            <Button variant="secondary" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
-              {t('reports.downloadPdf')}
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
+            {t('reports.downloadPdf')}
+          </Button>
         }
       />
+
+      <div className="mb-4">
+        <Tabs tabs={tabs} value={tab} onChange={setTab} />
+      </div>
+
       <Card>
         {tab === 'trial-balance' && <TrialBalanceView />}
         {tab === 'profit-and-loss' && <ProfitAndLossView />}

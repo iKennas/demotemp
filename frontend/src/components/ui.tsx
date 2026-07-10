@@ -1,6 +1,17 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TdHTMLAttributes, TextareaHTMLAttributes, ThHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconChevronEnd, IconChevronStart, IconClose, IconInbox } from './icons'
+import { useTheme } from '../contexts/ThemeContext'
+import { supportedLanguages } from '../i18n'
+import { IconChevronEnd, IconChevronStart, IconClose, IconInbox, IconSearch } from './icons'
+
+export const invoiceStatusColor: Record<string, string> = {
+  draft: 'gray',
+  sent: 'blue',
+  paid: 'green',
+  partially_paid: 'yellow',
+  overdue: 'red',
+  void: 'red',
+}
 
 export function Button({
   variant = 'primary',
@@ -12,7 +23,7 @@ export function Button({
   size?: 'sm' | 'md'
 }) {
   const variants: Record<string, string> = {
-    primary: 'bg-accent text-accent-ink shadow-sm hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50',
+    primary: 'bg-accent text-white shadow-sm hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50 dark:text-accent-ink',
     secondary: 'border border-line bg-surface text-subtle hover:bg-muted hover:text-content active:scale-[0.98] disabled:opacity-50',
     danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 active:scale-[0.98] disabled:opacity-50',
     ghost: 'text-subtle hover:bg-muted hover:text-content active:scale-[0.98] disabled:opacity-50',
@@ -83,20 +94,41 @@ export function Badge({ children, color = 'gray' }: { children: ReactNode; color
   return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[color]}`}>{children}</span>
 }
 
-export function Modal({ open, onClose, title, children, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  wide,
+  size,
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+  wide?: boolean
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}) {
   const { t } = useTranslation()
   if (!open) return null
+  const sizes: Record<string, string> = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+  }
+  const widthClass = size ? sizes[size] : wide ? sizes.lg : sizes.md
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-2xl ${wide ? 'max-w-2xl' : 'max-w-lg'}`}
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-2xl ${widthClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-content">{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-faint transition-colors hover:bg-muted hover:text-content"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint transition-colors hover:bg-muted hover:text-content"
             aria-label={t('common.close')}
           >
             <IconClose size={16} />
@@ -110,12 +142,12 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex items-start justify-between gap-4">
-      <div>
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
         <h1 className="text-2xl font-bold tracking-tight text-content">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-sm text-faint">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-sm text-faint">{subtitle}</p>}
       </div>
-      {action}
+      {action && <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
     </div>
   )
 }
@@ -173,7 +205,7 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
   const to = Math.min(currentPage * perPage, total)
 
   return (
-    <div className="flex items-center justify-between border-t border-line px-4 py-3 text-sm text-subtle">
+    <div className="flex flex-col gap-3 border-t border-line px-4 py-3 text-sm text-subtle sm:flex-row sm:items-center sm:justify-between">
       <span className="text-xs text-faint">{t('pagination.showing', { from, to, total })}</span>
       <div className="flex items-center gap-1.5">
         <Button size="sm" variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
@@ -186,6 +218,172 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
           <IconChevronEnd size={14} />
         </Button>
       </div>
+    </div>
+  )
+}
+
+export function Tabs({ tabs, value, onChange }: { tabs: { id: string; label: string }[]; value: string; onChange: (id: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-muted p-1">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => onChange(tab.id)}
+          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            value === tab.id ? 'bg-surface text-content shadow-sm' : 'text-subtle hover:text-content'
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function TableContainer({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`overflow-x-auto ${className}`}>{children}</div>
+}
+
+export function Table({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <table className={`w-full min-w-[32rem] text-start text-sm ${className}`}>{children}</table>
+}
+
+export function TableHead({ children }: { children: ReactNode }) {
+  return <thead className="border-b border-line bg-muted text-xs uppercase tracking-wide text-faint">{children}</thead>
+}
+
+export function TableBody({ children }: { children: ReactNode }) {
+  return <tbody className="divide-y divide-line">{children}</tbody>
+}
+
+export function TableRow({ children, className = '', onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
+  return (
+    <tr className={`${onClick ? 'cursor-pointer hover:bg-muted' : ''} ${className}`} onClick={onClick}>
+      {children}
+    </tr>
+  )
+}
+
+export function TableCell({ children, className = '', colSpan }: TdHTMLAttributes<HTMLTableCellElement> & { children?: ReactNode }) {
+  return (
+    <td className={`px-4 py-3 ${className}`} colSpan={colSpan}>
+      {children}
+    </td>
+  )
+}
+
+export function TableHeaderCell({ children, className = '' }: ThHTMLAttributes<HTMLTableCellElement> & { children?: ReactNode }) {
+  return <th className={`px-4 py-3 font-medium ${className}`}>{children}</th>
+}
+
+export function LoadingState({ message }: { message?: string }) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex items-center justify-center gap-2.5 py-12 text-sm text-faint">
+      <Spinner />
+      <span>{message ?? t('common.loading')}</span>
+    </div>
+  )
+}
+
+export function FilterBar({ children }: { children: ReactNode }) {
+  return <div className="mb-4 flex flex-wrap items-center gap-3">{children}</div>
+}
+
+export function SearchInput({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className={`relative w-full max-w-sm ${className}`}>
+      <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-faint">
+        <IconSearch size={16} />
+      </span>
+      <Input className="ps-9" {...props} />
+    </div>
+  )
+}
+
+export function SectionTitle({ children }: { children: ReactNode }) {
+  return <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-faint">{children}</h2>
+}
+
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  onCancel,
+  danger = true,
+}: {
+  open: boolean
+  title: string
+  message: string
+  confirmLabel?: string
+  cancelLabel?: string
+  onConfirm: () => void
+  onCancel: () => void
+  danger?: boolean
+}) {
+  const { t } = useTranslation()
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onCancel}>
+      <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-semibold text-content">{title}</h3>
+        <p className="mt-2 text-sm text-subtle">{message}</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCancel}>
+            {cancelLabel ?? t('common.cancel')}
+          </Button>
+          <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm}>
+            {confirmLabel ?? t('common.confirm')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function LocaleThemeControls({ compact }: { compact?: boolean }) {
+  const { t, i18n } = useTranslation()
+  const { theme, toggle } = useTheme()
+
+  return (
+    <div className={`flex items-center gap-2 ${compact ? '' : 'w-full'}`}>
+      <div className={`relative ${compact ? 'w-auto' : 'flex-1'}`}>
+        <select
+          value={i18n.language}
+          onChange={(e) => i18n.changeLanguage(e.target.value)}
+          className={`appearance-none rounded-lg border border-line bg-surface py-1.5 ps-2.5 pe-7 text-xs text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 ${compact ? '' : 'w-full'}`}
+        >
+          {supportedLanguages.map((lang) => (
+            <option key={lang.code} value={lang.code}>{lang.label}</option>
+          ))}
+        </select>
+        <span className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2 text-faint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </div>
+      <button
+        onClick={toggle}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line text-subtle transition-colors hover:bg-muted hover:text-content"
+        aria-label={theme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}
+        title={theme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}
+      >
+        {theme === 'dark' ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+          </svg>
+        )}
+      </button>
     </div>
   )
 }

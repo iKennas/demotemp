@@ -20,7 +20,16 @@
     "auditLog": "سجل النشاطات",
     "settings": "إعدادات الشركة",
     "admin": "إدارة المنصة",
-    "signOut": "تسجيل الخروج"
+    "signOut": "تسجيل الخروج",
+    "openMenu": "فتح القائمة",
+    "sections": {
+      "overview": "نظرة عامة",
+      "accounting": "المحاسبة",
+      "sales": "المبيعات والفوترة",
+      "cash": "النقد والبنوك",
+      "inventory": "المخزون",
+      "administration": "الإدارة"
+    }
   },
   "theme": {
     "switchToLight": "الوضع الفاتح",
@@ -47,6 +56,7 @@
   },
   "dashboard": {
     "welcomeBack": "مرحبًا بعودتك، {{name}}",
+    "subtitle": "نظرة سريعة على وضع شركتك المالي.",
     "revenueAllTime": "إجمالي الإيرادات",
     "expensesAllTime": "إجمالي المصروفات",
     "netIncome": "صافي الربح",
@@ -54,6 +64,16 @@
     "totalLiabilities": "إجمالي الخصوم",
     "totalEquity": "إجمالي حقوق الملكية",
     "trendTitle": "الإيرادات مقابل المصروفات (آخر 6 أشهر)",
+    "chartRevenue": "الإيرادات",
+    "chartExpense": "المصروفات",
+    "chartNet": "الصافي",
+    "dueDate": "استحقاق {{date}}",
+    "sections": {
+      "performance": "الأداء",
+      "balanceSheet": "الميزانية العمومية",
+      "alerts": "يتطلب انتباهك",
+      "recentActivity": "النشاط الأخير"
+    },
     "noPermission": "ليس لديك صلاحية لعرض الملخصات المالية.",
     "overdueInvoices": "الفواتير المتأخرة ({{count}})",
     "nothingOverdue": "لا توجد فواتير متأخرة.",
@@ -73,6 +93,7 @@
     "delete": "حذف",
     "edit": "تعديل",
     "close": "إغلاق",
+    "confirm": "تأكيد",
     "apply": "تطبيق",
     "system": "نظام",
     "you": "أنت",
@@ -157,6 +178,7 @@
   },
   "reports": {
     "pageTitle": "التقارير",
+    "subtitle": "اعرض القوائم المالية وصدّرها بصيغة PDF.",
     "trialBalance": "ميزان المراجعة",
     "profitAndLoss": "الأرباح والخسائر",
     "balanceSheet": "الميزانية العمومية",
@@ -247,6 +269,7 @@
     "pricePlaceholder": "السعر",
     "taxPlaceholder": "الضريبة%",
     "addItem": "إضافة بند",
+    "lineItems": "بنود الفاتورة",
     "total": "الإجمالي: {{amount}}",
     "saveDraft": "حفظ كمسودة",
     "status": "الحالة",

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import logoIcon from '../assets/logo-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { apiErrorMessage } from '../api/errors'
-import { Button, Card, ErrorText, Field, Input } from '../components/ui'
+import { Button, Card, ErrorText, Field, Input, LocaleThemeControls } from '../components/ui'
 
 export default function Login() {
   const { login } = useAuth()
@@ -30,7 +30,11 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-app px-4">
+    <div className="flex min-h-screen flex-col bg-app">
+      <div className="flex justify-end p-4">
+        <LocaleThemeControls compact />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-4 pb-8">
       <Card className="w-full max-w-sm p-8">
         <div className="mb-6 flex items-center gap-2.5">
           <img src={logoIcon} alt="" className="h-9 w-9 object-contain" />
@@ -58,6 +62,7 @@ export default function Login() {
           </Link>
         </p>
       </Card>
+      </div>
     </div>
   )
 }
