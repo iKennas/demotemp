@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api, downloadPdf } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Supplier } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconChevronStart, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -95,33 +95,35 @@ export default function Suppliers() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={search ? t('suppliers.emptySearch') : t('suppliers.emptyDefault')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[36rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('suppliers.colName')}</th>
-                <th className="px-4 py-3">{t('suppliers.colEmail')}</th>
-                <th className="px-4 py-3">{t('suppliers.colPhone')}</th>
-                <th className="px-4 py-3">{t('suppliers.colStatus')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('suppliers.colName')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('suppliers.colEmail')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('suppliers.colPhone')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('suppliers.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td>
+                  <td className="px-3 py-6 text-faint sm:px-4" colSpan={4}>{t('common.loading')}</td>
                 </tr>
               )}
               {data?.data.map((s) => (
                 <tr key={s.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(s)}>
-                  <td className="px-4 py-3 font-medium text-content">{s.name}</td>
-                  <td className="px-4 py-3 text-subtle">{s.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{s.phone ?? '—'}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">{s.name}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{s.email ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{s.phone ?? '—'}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <Badge color={s.status === 'active' ? 'green' : 'gray'}>{s.status === 'active' ? t('status.active') : t('status.inactive')}</Badge>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -181,7 +183,7 @@ export default function Suppliers() {
           </form>
         ) : (
           <div>
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button onClick={() => setShowStatement(false)} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
                 <IconChevronStart size={14} />
                 {t('suppliers.backToDetails')}
@@ -189,6 +191,7 @@ export default function Suppliers() {
               <Button
                 type="button"
                 variant="secondary"
+                className="w-full sm:w-auto"
                 onClick={() => downloadPdf(`/suppliers/${editing!.id}/statement/pdf`, `statement-${editing!.name}.pdf`)}
               >
                 {t('suppliers.downloadPdf')}
@@ -201,13 +204,14 @@ export default function Suppliers() {
                   <span>{t('suppliers.openingBalance')}</span>
                   <span>{fmt(statement.opening_balance)}</span>
                 </div>
-                <table className="w-full text-left">
+                <TableContainer>
+                <table className="w-full min-w-[36rem] text-start">
                   <thead className="border-b border-line text-xs uppercase text-faint">
                     <tr>
                       <th className="py-1">{t('suppliers.colDate')}</th>
                       <th className="py-1">{t('suppliers.colRef')}</th>
-                      <th className="py-1 text-right">{t('suppliers.colAmount')}</th>
-                      <th className="py-1 text-right">{t('suppliers.colBalance')}</th>
+                      <th className="py-1 text-end">{t('suppliers.colAmount')}</th>
+                      <th className="py-1 text-end">{t('suppliers.colBalance')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -215,12 +219,13 @@ export default function Suppliers() {
                       <tr key={i}>
                         <td className="py-1.5">{line.date.slice(0, 10)}</td>
                         <td className="py-1.5">{line.reference}</td>
-                        <td className="py-1.5 text-right">{fmt(line.amount)}</td>
-                        <td className="py-1.5 text-right">{fmt(line.balance)}</td>
+                        <td className="py-1.5 text-end">{fmt(line.amount)}</td>
+                        <td className="py-1.5 text-end">{fmt(line.balance)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                </TableContainer>
                 <div className="mt-2 flex justify-between border-t border-line pt-2 font-semibold">
                   <span>{t('suppliers.closingBalance')}</span>
                   <span>{fmt(statement.closing_balance)}</span>

@@ -128,8 +128,7 @@ export default function Invoices() {
         action={can('invoices.manage') && <Button onClick={() => setOpen(true)}><IconPlus size={16} />{t('invoices.newInvoice')}</Button>}
       />
       <FilterBar>
-        <div className="w-full max-w-xs">
-          <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}>
+        <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}>
             <option value="">{t('invoices.allStatuses')}</option>
             <option value="draft">{t('status.draft')}</option>
             <option value="sent">{t('status.sent')}</option>
@@ -138,7 +137,6 @@ export default function Invoices() {
             <option value="overdue">{t('status.overdue')}</option>
             <option value="void">{t('status.void')}</option>
           </Select>
-        </div>
       </FilterBar>
       <Card>
         {data?.data.length === 0 && !isLoading ? (
@@ -210,28 +208,33 @@ export default function Invoices() {
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-faint">{t('invoices.lineItems')}</p>
             {items.map((it, i) => (
-              <div key={i} className="grid grid-cols-2 gap-2 rounded-lg border border-line bg-muted/40 p-2 sm:grid-cols-12">
-                <div className="col-span-2 sm:col-span-4">
+              <div key={i} className="space-y-3 rounded-lg border border-line bg-muted/40 p-3 sm:space-y-0 sm:p-2">
+                <Field label={t('invoices.customItem')}>
                   <Select value={it.product_id ?? ''} onChange={(e) => onSelectProduct(i, e.target.value)}>
                     <option value="">{t('invoices.customItem')}</option>
                     {products?.map((p) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </Select>
-                </div>
-                <div className="col-span-2 sm:col-span-3">
+                </Field>
+                <Field label={t('invoices.descriptionPlaceholder')}>
                   <Input placeholder={t('invoices.descriptionPlaceholder')} required value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} />
+                </Field>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <Field label={t('invoices.qtyPlaceholder')}>
+                    <Input type="number" step="0.001" placeholder="1" value={it.quantity} onChange={(e) => updateItem(i, { quantity: Number(e.target.value) })} />
+                  </Field>
+                  <Field label={t('invoices.pricePlaceholder')}>
+                    <Input type="number" step="0.01" placeholder="0.00" value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: Number(e.target.value) })} />
+                  </Field>
+                  <Field label={t('invoices.taxPlaceholder')}>
+                    <Input type="number" step="0.01" placeholder="15" value={it.tax_rate} onChange={(e) => updateItem(i, { tax_rate: Number(e.target.value) })} />
+                  </Field>
+                  <div className="flex flex-col justify-end">
+                    <span className="mb-1.5 block text-sm font-medium text-subtle">{t('invoices.colTotal')}</span>
+                    <p className="py-2 text-sm font-semibold text-content">{lineTotal(it).toFixed(2)}</p>
+                  </div>
                 </div>
-                <div className="sm:col-span-1">
-                  <Input type="number" step="0.001" placeholder={t('invoices.qtyPlaceholder')} value={it.quantity} onChange={(e) => updateItem(i, { quantity: Number(e.target.value) })} />
-                </div>
-                <div className="sm:col-span-2">
-                  <Input type="number" step="0.01" placeholder={t('invoices.pricePlaceholder')} value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: Number(e.target.value) })} />
-                </div>
-                <div className="sm:col-span-1">
-                  <Input type="number" step="0.01" placeholder={t('invoices.taxPlaceholder')} value={it.tax_rate} onChange={(e) => updateItem(i, { tax_rate: Number(e.target.value) })} />
-                </div>
-                <div className="col-span-2 flex items-center justify-end pe-1 text-sm font-medium text-subtle sm:col-span-1">{lineTotal(it).toFixed(2)}</div>
               </div>
             ))}
             <button type="button" onClick={() => setItems((its) => [...its, { ...emptyItem }])} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
@@ -317,7 +320,7 @@ export default function Invoices() {
             )}
             {viewing.status !== 'draft' && (
               <div className="space-y-2">
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="secondary" onClick={() => downloadInvoicePdf(viewing.id, viewing.invoice_number)} className="flex-1">
                     {t('invoices.downloadPdf')}
                   </Button>

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
-import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -62,27 +62,28 @@ export default function Expenses() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('expenses.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[44rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('expenses.colExpenseNumber')}</th>
-                <th className="px-4 py-3">{t('expenses.colAccount')}</th>
-                <th className="px-4 py-3">{t('expenses.colCategory')}</th>
-                <th className="px-4 py-3">{t('expenses.colDate')}</th>
-                <th className="px-4 py-3 text-right">{t('expenses.colAmount')}</th>
-                <th className="px-4 py-3" />
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('expenses.colExpenseNumber')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('expenses.colAccount')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('expenses.colCategory')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('expenses.colDate')}</th>
+                <th className="px-3 py-2.5 text-end sm:px-4 sm:py-3">{t('expenses.colAmount')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={6}>{t('common.loading')}</td></tr>}
+              {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={6}>{t('common.loading')}</td></tr>}
               {data?.data.map((e) => (
                 <tr key={e.id}>
-                  <td className="px-4 py-3 font-mono text-subtle">{e.expense_number}</td>
-                  <td className="px-4 py-3 text-content">{e.account?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{e.category ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{e.expense_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-subtle">{e.amount}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 py-2.5 font-mono text-subtle sm:px-4 sm:py-3">{e.expense_number}</td>
+                  <td className="px-3 py-2.5 text-content sm:px-4 sm:py-3">{e.account?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{e.category ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{e.expense_date?.slice(0, 10)}</td>
+                  <td className="px-3 py-2.5 text-end text-subtle sm:px-4 sm:py-3">{e.amount}</td>
+                  <td className="px-3 py-2.5 text-end sm:px-4 sm:py-3">
                     {can('cash.manage') && (
                       <button
                         onClick={() => confirm(t('expenses.deleteConfirm')) && deleteMutation.mutate(e.id)}
@@ -96,6 +97,7 @@ export default function Expenses() {
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -113,7 +115,7 @@ export default function Expenses() {
           <Field label={t('expenses.category')}>
             <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('expenses.amount')}>
               <Input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </Field>

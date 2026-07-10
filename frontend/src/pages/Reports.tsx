@@ -58,16 +58,16 @@ function ProfitAndLossView() {
     <div className="p-4">
       <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.revenue')}</h3>
       {data?.revenue.map((r) => (
-        <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
-          <span className="text-subtle">{r.name}</span>
-          <span className="text-content">{fmt(r.amount)}</span>
+        <div key={r.code} className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+          <span className="min-w-0 flex-1 truncate text-subtle">{r.name}</span>
+          <span className="shrink-0 text-content">{fmt(r.amount)}</span>
         </div>
       ))}
       <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">{t('reports.expenses')}</h3>
       {data?.expenses.map((r) => (
-        <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
-          <span className="text-subtle">{r.name}</span>
-          <span className="text-content">{fmt(r.amount)}</span>
+        <div key={r.code} className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+          <span className="min-w-0 flex-1 truncate text-subtle">{r.name}</span>
+          <span className="shrink-0 text-content">{fmt(r.amount)}</span>
         </div>
       ))}
       <div className="mt-4 flex justify-between border-t-2 border-line pt-2 text-base font-semibold">
@@ -87,9 +87,9 @@ function BalanceSheetView() {
       <div>
         <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.assets')}</h3>
         {data?.assets.map((r) => (
-          <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
-            <span className="text-subtle">{r.name}</span>
-            <span className="text-content">{fmt(r.amount)}</span>
+          <div key={r.code} className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+            <span className="min-w-0 flex-1 truncate text-subtle">{r.name}</span>
+            <span className="shrink-0 text-content">{fmt(r.amount)}</span>
           </div>
         ))}
         <div className="mt-2 flex justify-between font-semibold">
@@ -100,9 +100,9 @@ function BalanceSheetView() {
       <div>
         <h3 className="mb-2 text-sm font-semibold text-subtle">{t('reports.liabilities')}</h3>
         {data?.liabilities.map((r) => (
-          <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
-            <span className="text-subtle">{r.name}</span>
-            <span className="text-content">{fmt(r.amount)}</span>
+          <div key={r.code} className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+            <span className="min-w-0 flex-1 truncate text-subtle">{r.name}</span>
+            <span className="shrink-0 text-content">{fmt(r.amount)}</span>
           </div>
         ))}
         <div className="mt-2 flex justify-between font-semibold">
@@ -111,14 +111,14 @@ function BalanceSheetView() {
         </div>
         <h3 className="mb-2 mt-4 text-sm font-semibold text-subtle">{t('reports.equity')}</h3>
         {data?.equity.map((r) => (
-          <div key={r.code} className="flex justify-between border-b border-line py-1.5 text-sm">
-            <span className="text-subtle">{r.name}</span>
-            <span className="text-content">{fmt(r.amount)}</span>
+          <div key={r.code} className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+            <span className="min-w-0 flex-1 truncate text-subtle">{r.name}</span>
+            <span className="shrink-0 text-content">{fmt(r.amount)}</span>
           </div>
         ))}
-        <div className="flex justify-between border-b border-line py-1.5 text-sm">
-          <span className="text-subtle">{t('reports.netIncome')}</span>
-          <span className="text-content">{fmt(data?.net_income ?? 0)}</span>
+        <div className="flex items-start justify-between gap-3 border-b border-line py-1.5 text-sm">
+          <span className="min-w-0 flex-1 truncate text-subtle">{t('reports.netIncome')}</span>
+          <span className="shrink-0 text-content">{fmt(data?.net_income ?? 0)}</span>
         </div>
         <div className="mt-2 flex justify-between font-semibold">
           <span>{t('reports.totalEquity')}</span>
@@ -147,18 +147,13 @@ export default function Reports() {
 
   return (
     <div>
-      <PageHeader
-        title={t('reports.pageTitle')}
-        subtitle={t('reports.subtitle')}
-        action={
-          <Button variant="secondary" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
-            {t('reports.downloadPdf')}
-          </Button>
-        }
-      />
+      <PageHeader title={t('reports.pageTitle')} subtitle={t('reports.subtitle')} />
 
-      <div className="mb-4">
+      <div className="mb-4 space-y-3">
         <Tabs tabs={tabs} value={tab} onChange={setTab} />
+        <Button variant="secondary" className="w-full sm:w-auto" onClick={() => downloadPdf(reportPdf[tab].path, reportPdf[tab].filename)}>
+          {t('reports.downloadPdf')}
+        </Button>
       </div>
 
       <Card>

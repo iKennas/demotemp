@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, LoadingState, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconClose, IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -102,35 +102,37 @@ export default function JournalEntries() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('journalEntries.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[44rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('journalEntries.colEntryNumber')}</th>
-                <th className="px-4 py-3">{t('journalEntries.colDate')}</th>
-                <th className="px-4 py-3">{t('journalEntries.colDescription')}</th>
-                <th className="px-4 py-3 text-right">{t('journalEntries.colDebit')}</th>
-                <th className="px-4 py-3 text-right">{t('journalEntries.colCredit')}</th>
-                <th className="px-4 py-3">{t('journalEntries.colStatus')}</th>
-                <th className="px-4 py-3" />
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('journalEntries.colEntryNumber')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('journalEntries.colDate')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('journalEntries.colDescription')}</th>
+                <th className="px-3 py-2.5 text-end font-medium sm:px-4 sm:py-3">{t('journalEntries.colDebit')}</th>
+                <th className="px-3 py-2.5 text-end font-medium sm:px-4 sm:py-3">{t('journalEntries.colCredit')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('journalEntries.colStatus')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={7}>{t('common.loading')}</td>
+                  <td className="px-3 py-6 text-faint sm:px-4" colSpan={7}><LoadingState /></td>
                 </tr>
               )}
               {data?.data.map((je) => (
                 <tr key={je.id}>
-                  <td className="px-4 py-3 font-mono text-subtle">{je.entry_number}</td>
-                  <td className="px-4 py-3 text-subtle">{je.entry_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-content">{je.description ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-subtle">{je.total_debit}</td>
-                  <td className="px-4 py-3 text-right text-subtle">{je.total_credit}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 font-mono text-subtle sm:px-4 sm:py-3">{je.entry_number}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{je.entry_date?.slice(0, 10)}</td>
+                  <td className="max-w-[10rem] truncate px-3 py-2.5 text-content sm:max-w-none sm:px-4 sm:py-3">{je.description ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-end text-subtle sm:px-4 sm:py-3">{je.total_debit}</td>
+                  <td className="px-3 py-2.5 text-end text-subtle sm:px-4 sm:py-3">{je.total_credit}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <Badge color={statusColor[je.status]}>{t(`status.${je.status}`)}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-right space-x-2">
+                  <td className="px-3 py-2.5 text-end sm:px-4 sm:py-3">
+                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:justify-end sm:gap-2">
                     {can('finance.manage') && je.status === 'draft' && (
                       <>
                         <button onClick={() => postMutation.mutate(je.id)} className="text-xs font-medium text-accent-strong hover:underline">
@@ -152,20 +154,22 @@ export default function JournalEntries() {
                         {t('journalEntries.void')}
                       </button>
                     )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={t('journalEntries.newEntryModalTitle')}>
+      <Modal open={open} onClose={() => setOpen(false)} title={t('journalEntries.newEntryModalTitle')} size="lg">
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('fields.date')}>
               <Input type="date" required value={entryDate} onChange={(e) => setEntryDate(e.target.value)} />
             </Field>
@@ -174,28 +178,36 @@ export default function JournalEntries() {
             </Field>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {lines.map((line, i) => (
-              <div key={i} className="grid grid-cols-12 gap-2">
-                <div className="col-span-5">
-                  <Select value={line.account_id} onChange={(e) => updateLine(i, { account_id: e.target.value })}>
-                    <option value="">{t('journalEntries.accountPlaceholder')}</option>
-                    {accounts?.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.code} - {a.name}
-                      </option>
-                    ))}
-                  </Select>
+              <div key={i} className="space-y-2 rounded-lg border border-line bg-muted/40 p-3 sm:grid sm:grid-cols-12 sm:gap-2 sm:space-y-0 sm:p-2">
+                <div className="sm:col-span-5">
+                  <Field label={t('journalEntries.accountPlaceholder')}>
+                    <Select value={line.account_id} onChange={(e) => updateLine(i, { account_id: e.target.value })}>
+                      <option value="">{t('journalEntries.accountPlaceholder')}</option>
+                      {accounts?.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.code} - {a.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
                 </div>
-                <div className="col-span-3">
-                  <Input type="number" step="0.01" placeholder={t('journalEntries.debitPlaceholder')} value={line.debit} onChange={(e) => updateLine(i, { debit: e.target.value, credit: '' })} />
+                <div className="grid grid-cols-2 gap-2 sm:contents">
+                  <div className="sm:col-span-3">
+                    <Field label={t('journalEntries.debitPlaceholder')}>
+                      <Input type="number" step="0.01" placeholder="0.00" value={line.debit} onChange={(e) => updateLine(i, { debit: e.target.value, credit: '' })} />
+                    </Field>
+                  </div>
+                  <div className="sm:col-span-3">
+                    <Field label={t('journalEntries.creditPlaceholder')}>
+                      <Input type="number" step="0.01" placeholder="0.00" value={line.credit} onChange={(e) => updateLine(i, { credit: e.target.value, debit: '' })} />
+                    </Field>
+                  </div>
                 </div>
-                <div className="col-span-3">
-                  <Input type="number" step="0.01" placeholder={t('journalEntries.creditPlaceholder')} value={line.credit} onChange={(e) => updateLine(i, { credit: e.target.value, debit: '' })} />
-                </div>
-                <div className="col-span-1 flex items-center justify-center">
+                <div className="flex items-end justify-end sm:col-span-1 sm:justify-center">
                   {lines.length > 2 && (
-                    <button type="button" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))} className="text-faint hover:text-red-600">
+                    <button type="button" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))} className="flex h-9 w-9 items-center justify-center rounded-lg text-faint hover:bg-muted hover:text-red-600">
                       <IconClose size={16} />
                     </button>
                   )}
@@ -208,7 +220,7 @@ export default function JournalEntries() {
             </button>
           </div>
 
-          <div className={`flex justify-between rounded-md px-3 py-2 text-sm ${balanced ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          <div className={`flex flex-col gap-1 rounded-md px-3 py-2 text-sm sm:flex-row sm:justify-between ${balanced ? 'bg-green-50 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-300' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'}`}>
             <span>{t('journalEntries.debitLabel', { amount: totalDebit.toFixed(2) })}</span>
             <span>{t('journalEntries.creditLabel', { amount: totalCredit.toFixed(2) })}</span>
           </div>

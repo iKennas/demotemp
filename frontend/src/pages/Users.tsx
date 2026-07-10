@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, User } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -82,33 +82,35 @@ export default function Users() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('users.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[36rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('users.colName')}</th>
-                <th className="px-4 py-3">{t('users.colEmail')}</th>
-                <th className="px-4 py-3">{t('users.colRole')}</th>
-                <th className="px-4 py-3">{t('users.colStatus')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('users.colName')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('users.colEmail')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('users.colRole')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('users.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
+              {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={4}>{t('common.loading')}</td></tr>}
               {data?.data.map((u) => (
                 <tr
                   key={u.id}
                   className={can('users.manage') ? 'cursor-pointer hover:bg-muted' : ''}
                   onClick={() => can('users.manage') && setEditing(u)}
                 >
-                  <td className="px-4 py-3 font-medium text-content">
+                  <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">
                     {u.name} {u.id === me?.id && <span className="text-xs text-faint">{t('users.you')}</span>}
                   </td>
-                  <td className="px-4 py-3 text-subtle">{u.email}</td>
-                  <td className="px-4 py-3 text-subtle">{u.roles?.map((r) => r.name).join(', ') ?? '—'}</td>
-                  <td className="px-4 py-3"><Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{u.email}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{u.roles?.map((r) => r.name).join(', ') ?? '—'}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3"><Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -156,7 +158,7 @@ export default function Users() {
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
               <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
                 {updateMutation.isPending ? t('common.saving') : t('users.saveChanges')}
               </Button>

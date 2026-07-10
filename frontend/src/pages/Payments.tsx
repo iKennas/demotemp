@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount, Customer, Paginated, Supplier } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -72,29 +72,30 @@ export default function Payments() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('payments.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[44rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('payments.colPaymentNumber')}</th>
-                <th className="px-4 py-3">{t('payments.colDirection')}</th>
-                <th className="px-4 py-3">{t('payments.colParty')}</th>
-                <th className="px-4 py-3">{t('payments.colDate')}</th>
-                <th className="px-4 py-3 text-right">{t('payments.colAmount')}</th>
-                <th className="px-4 py-3">{t('payments.colMethod')}</th>
-                <th className="px-4 py-3" />
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('payments.colPaymentNumber')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('payments.colDirection')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('payments.colParty')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('payments.colDate')}</th>
+                <th className="px-3 py-2.5 text-end sm:px-4 sm:py-3">{t('payments.colAmount')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('payments.colMethod')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={7}>{t('common.loading')}</td></tr>}
+              {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={7}>{t('common.loading')}</td></tr>}
               {data?.data.map((p) => (
                 <tr key={p.id}>
-                  <td className="px-4 py-3 font-mono text-subtle">{p.payment_number}</td>
-                  <td className="px-4 py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? t('payments.received') : t('payments.paid')}</Badge></td>
-                  <td className="px-4 py-3 text-content">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{p.payment_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-subtle">{p.amount}</td>
-                  <td className="px-4 py-3 capitalize text-subtle">{p.method}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 py-2.5 font-mono text-subtle sm:px-4 sm:py-3">{p.payment_number}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3"><Badge color={p.direction === 'in' ? 'green' : 'red'}>{p.direction === 'in' ? t('payments.received') : t('payments.paid')}</Badge></td>
+                  <td className="px-3 py-2.5 text-content sm:px-4 sm:py-3">{p.customer?.name ?? p.supplier?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.payment_date?.slice(0, 10)}</td>
+                  <td className="px-3 py-2.5 text-end text-subtle sm:px-4 sm:py-3">{p.amount}</td>
+                  <td className="px-3 py-2.5 capitalize text-subtle sm:px-4 sm:py-3">{p.method}</td>
+                  <td className="px-3 py-2.5 text-end sm:px-4 sm:py-3">
                     {can('cash.manage') && (
                       <button
                         onClick={() => confirm(t('payments.deleteConfirm')) && deleteMutation.mutate(p.id)}
@@ -108,6 +109,7 @@ export default function Payments() {
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -143,7 +145,7 @@ export default function Payments() {
               {bankAccounts?.map((b) => <option key={b.id} value={b.id}>{b.account_name}</option>)}
             </Select>
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('payments.amount')}>
               <Input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </Field>

@@ -199,7 +199,7 @@ export default function Settings() {
           <Field label={t('settings.taxNumberVat')}>
             <Input disabled={!can('settings.manage')} value={form.tax_number} onChange={(e) => setForm({ ...form, tax_number: e.target.value })} />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('settings.email')}>
               <Input type="email" disabled={!can('settings.manage')} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </Field>

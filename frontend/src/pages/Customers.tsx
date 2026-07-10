@@ -197,7 +197,7 @@ export default function Customers() {
               </Select>
             </Field>
             <ErrorText>{error}</ErrorText>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button type="button" variant="secondary" onClick={() => setShowStatement(true)} className="flex-1">
                 {t('customers.viewStatement')}
               </Button>
@@ -210,7 +210,7 @@ export default function Customers() {
           </form>
         ) : (
           <div>
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button onClick={() => setShowStatement(false)} className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong hover:underline">
                 <IconChevronStart size={14} />
                 {t('customers.backToDetails')}
@@ -218,6 +218,7 @@ export default function Customers() {
               <Button
                 type="button"
                 variant="secondary"
+                className="w-full sm:w-auto"
                 onClick={() => downloadPdf(`/customers/${editing!.id}/statement/pdf`, `statement-${editing!.name}.pdf`)}
               >
                 {t('customers.downloadPdf')}
@@ -230,13 +231,14 @@ export default function Customers() {
                   <span>{t('customers.openingBalance')}</span>
                   <span>{fmt(statement.opening_balance)}</span>
                 </div>
-                <table className="w-full text-left">
+                <TableContainer>
+                <table className="w-full min-w-[36rem] text-start">
                   <thead className="border-b border-line text-xs uppercase text-faint">
                     <tr>
                       <th className="py-1">{t('customers.colDate')}</th>
                       <th className="py-1">{t('customers.colRef')}</th>
-                      <th className="py-1 text-right">{t('customers.colAmount')}</th>
-                      <th className="py-1 text-right">{t('customers.colBalance')}</th>
+                      <th className="py-1 text-end">{t('customers.colAmount')}</th>
+                      <th className="py-1 text-end">{t('customers.colBalance')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -244,12 +246,13 @@ export default function Customers() {
                       <tr key={i}>
                         <td className="py-1.5">{line.date.slice(0, 10)}</td>
                         <td className="py-1.5">{line.reference}</td>
-                        <td className="py-1.5 text-right">{fmt(line.amount)}</td>
-                        <td className="py-1.5 text-right">{fmt(line.balance)}</td>
+                        <td className="py-1.5 text-end">{fmt(line.amount)}</td>
+                        <td className="py-1.5 text-end">{fmt(line.balance)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                </TableContainer>
                 <div className="mt-2 flex justify-between border-t border-line pt-2 font-semibold">
                   <span>{t('customers.closingBalance')}</span>
                   <span>{fmt(statement.closing_balance)}</span>

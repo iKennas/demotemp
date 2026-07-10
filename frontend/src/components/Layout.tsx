@@ -299,7 +299,7 @@ export default function Layout() {
             <p className="truncate text-sm font-semibold text-content">{currentPage ? t(currentPage.labelKey) : t('nav.dashboard')}</p>
             <p className="truncate text-xs text-faint">{user?.name}</p>
           </div>
-          <div className="hidden sm:block">
+          <div className="shrink-0">
             <LocaleThemeControls compact />
           </div>
         </header>

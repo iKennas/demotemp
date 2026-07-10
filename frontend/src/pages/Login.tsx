@@ -35,7 +35,7 @@ export default function Login() {
         <LocaleThemeControls compact />
       </div>
       <div className="flex flex-1 items-center justify-center px-4 pb-8">
-      <Card className="w-full max-w-sm p-8">
+      <Card className="w-full max-w-sm p-6 sm:p-8">
         <div className="mb-6 flex items-center gap-2.5">
           <img src={logoIcon} alt="" className="h-9 w-9 object-contain" />
           <div>

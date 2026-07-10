@@ -68,6 +68,7 @@ body {
   color: var(--content);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 /* Gentle fade when the theme swaps; interactive elements keep their own

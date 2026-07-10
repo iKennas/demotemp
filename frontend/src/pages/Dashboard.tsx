@@ -84,9 +84,9 @@ const statusKey: Record<string, string> = {
 
 function Stat({ label, value, tone = 'text-content', highlight }: { label: string; value: string; tone?: string; highlight?: boolean }) {
   return (
-    <Card className={`p-5 ${highlight ? 'border-accent/30 bg-accent-soft/30' : ''}`}>
+    <Card className={`p-4 sm:p-5 ${highlight ? 'border-accent/30 bg-accent-soft/30' : ''}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-faint">{label}</p>
-      <p className={`mt-1.5 text-2xl font-semibold tracking-tight ${tone}`}>{value}</p>
+      <p className={`mt-1.5 text-xl font-semibold tracking-tight sm:text-2xl ${tone}`}>{value}</p>
     </Card>
   )
 }
@@ -169,11 +169,12 @@ export default function Dashboard() {
           {summary?.monthly_trend && (
             <section>
               <WidgetCard title={t('dashboard.trendTitle')}>
-                <ResponsiveContainer width="100%" height={260}>
-                  <ComposedChart data={summary.monthly_trend}>
+                <div className="h-[200px] sm:h-[260px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={summary.monthly_trend} margin={{ left: -10, right: 4, top: 4, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-                    <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 12, fill: chart.tick }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 12, fill: chart.tick }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 11, fill: chart.tick }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: chart.tick }} axisLine={false} tickLine={false} width={48} />
                     <Tooltip
                       labelFormatter={(m) => monthLabel(String(m))}
                       formatter={(v) => Number(v).toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -188,8 +189,9 @@ export default function Dashboard() {
                     <Bar dataKey="revenue" fill={chart.revenue} radius={[4, 4, 0, 0]} name={t('dashboard.chartRevenue')} />
                     <Bar dataKey="expense" fill={chart.expense} radius={[4, 4, 0, 0]} name={t('dashboard.chartExpense')} />
                     <Line type="monotone" dataKey="net" stroke={chart.net} strokeWidth={2} dot={false} name={t('dashboard.chartNet')} />
-                  </ComposedChart>
+                </ComposedChart>
                 </ResponsiveContainer>
+                </div>
               </WidgetCard>
             </section>
           )}
@@ -256,12 +258,12 @@ export default function Dashboard() {
               ) : (
                 <ul className="divide-y divide-line">
                   {summary.recent_invoices.map((inv) => (
-                    <li key={inv.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                    <li key={inv.id} className="flex flex-col gap-2 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                       <div className="min-w-0">
                         <p className="font-medium text-content">{inv.invoice_number}</p>
                         <p className="truncate text-faint">{inv.customer?.name ?? inv.supplier?.name}</p>
                       </div>
-                      <div className="flex shrink-0 items-center gap-2">
+                      <div className="flex items-center justify-between gap-2 sm:shrink-0 sm:justify-end">
                         <span className="text-subtle">{inv.total}</span>
                         <Badge color={invoiceStatusColor[inv.status]}>
                           {t(`status.${statusKey[inv.status] ?? inv.status}`)}

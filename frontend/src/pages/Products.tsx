@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Paginated, Product } from '../types'
-import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -97,31 +97,32 @@ export default function Products() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={search ? t('products.emptySearch') : t('products.emptyDefault')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[36rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('products.colName')}</th>
-                <th className="px-4 py-3">{t('products.colType')}</th>
-                <th className="px-4 py-3">{t('products.colSalePrice')}</th>
-                <th className="px-4 py-3">{t('products.colOnHand')}</th>
-                <th className="px-4 py-3">{t('products.colStatus')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('products.colName')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('products.colType')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('products.colSalePrice')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('products.colOnHand')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('products.colStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {isLoading && (
                 <tr>
-                  <td className="px-4 py-6 text-faint" colSpan={5}>{t('common.loading')}</td>
+                  <td className="px-3 py-6 text-faint sm:px-4" colSpan={5}>{t('common.loading')}</td>
                 </tr>
               )}
               {data?.data.map((p) => {
                 const low = p.track_inventory && p.reorder_level !== null && Number(p.quantity_on_hand) <= Number(p.reorder_level)
                 return (
                   <tr key={p.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(p)}>
-                    <td className="px-4 py-3 font-medium text-content">{p.name}</td>
-                    <td className="px-4 py-3 text-subtle">{p.type === 'service' ? t('products.typeService') : t('products.typeProduct')}</td>
-                    <td className="px-4 py-3 text-subtle">{p.sale_price}</td>
-                    <td className="px-4 py-3 text-subtle">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">{p.name}</td>
+                    <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.type === 'service' ? t('products.typeService') : t('products.typeProduct')}</td>
+                    <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.sale_price}</td>
+                    <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.track_inventory ? p.quantity_on_hand : '—'}</td>
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                       {low ? <Badge color="red">{t('products.lowStock')}</Badge> : <Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? t('status.active') : t('status.inactive')}</Badge>}
                     </td>
                   </tr>
@@ -129,6 +130,7 @@ export default function Products() {
               })}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -146,7 +148,7 @@ export default function Products() {
               <option value="service">{t('products.typeService')}</option>
             </Select>
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('products.salePrice')}>
               <Input type="number" step="0.01" required value={form.sale_price} onChange={(e) => setForm({ ...form, sale_price: e.target.value })} />
             </Field>
@@ -154,7 +156,7 @@ export default function Products() {
               <Input type="number" step="0.01" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: e.target.value })} />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('products.taxRatePercent')}>
               <Input type="number" step="0.01" value={form.tax_rate} onChange={(e) => setForm({ ...form, tax_rate: e.target.value })} />
             </Field>
@@ -178,7 +180,7 @@ export default function Products() {
               <Field label={t('fields.name')}>
                 <Input required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} disabled={!can('inventory.manage')} />
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label={t('products.salePrice')}>
                   <Input type="number" step="0.01" value={editForm.sale_price} onChange={(e) => setEditForm({ ...editForm, sale_price: e.target.value })} disabled={!can('inventory.manage')} />
                 </Field>
@@ -186,7 +188,7 @@ export default function Products() {
                   <Input type="number" step="0.01" value={editForm.cost_price} onChange={(e) => setEditForm({ ...editForm, cost_price: e.target.value })} disabled={!can('inventory.manage')} />
                 </Field>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label={t('products.taxRatePercent')}>
                   <Input type="number" step="0.01" value={editForm.tax_rate} onChange={(e) => setEditForm({ ...editForm, tax_rate: e.target.value })} disabled={!can('inventory.manage')} />
                 </Field>
@@ -211,7 +213,7 @@ export default function Products() {
             {editing.track_inventory && can('inventory.manage') && (
               <div className="border-t border-line pt-4">
                 <p className="mb-2 text-sm font-medium text-subtle">{t('products.adjustStockTitle', { qty: editing.quantity_on_hand })}</p>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Select value={adjustType} onChange={(e) => setAdjustType(e.target.value as 'in' | 'out')} className="w-28">
                     <option value="in">{t('products.add')}</option>
                     <option value="out">{t('products.remove')}</option>

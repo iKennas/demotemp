@@ -119,13 +119,13 @@ export function Modal({
   }
   const widthClass = size ? sizes[size] : wide ? sizes.lg : sizes.md
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
       <div
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-2xl ${widthClass}`}
+        className={`max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-line bg-surface p-4 shadow-2xl sm:rounded-2xl sm:p-6 ${widthClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-content">{title}</h2>
+        <div className="mb-4 flex items-start justify-between gap-3 sm:mb-5">
+          <h2 className="text-base font-semibold text-content sm:text-lg">{title}</h2>
           <button
             onClick={onClose}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint transition-colors hover:bg-muted hover:text-content"
@@ -142,12 +142,12 @@ export function Modal({
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-content">{title}</h1>
+        <h1 className="text-xl font-bold tracking-tight text-content sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-faint">{subtitle}</p>}
       </div>
-      {action && <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
+      {action && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">{action}</div>}
     </div>
   )
 }
@@ -205,16 +205,16 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
   const to = Math.min(currentPage * perPage, total)
 
   return (
-    <div className="flex flex-col gap-3 border-t border-line px-4 py-3 text-sm text-subtle sm:flex-row sm:items-center sm:justify-between">
-      <span className="text-xs text-faint">{t('pagination.showing', { from, to, total })}</span>
-      <div className="flex items-center gap-1.5">
-        <Button size="sm" variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+    <div className="flex flex-col gap-3 border-t border-line px-3 py-3 text-sm text-subtle sm:flex-row sm:items-center sm:justify-between sm:px-4">
+      <span className="text-center text-xs text-faint sm:text-start">{t('pagination.showing', { from, to, total })}</span>
+      <div className="flex items-center justify-center gap-1.5">
+        <Button size="sm" variant="secondary" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)} aria-label={t('pagination.prev')}>
           <IconChevronStart size={14} />
-          {t('pagination.prev')}
+          <span className="hidden sm:inline">{t('pagination.prev')}</span>
         </Button>
-        <span className="min-w-[4rem] text-center text-xs text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
-        <Button size="sm" variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)}>
-          {t('pagination.next')}
+        <span className="min-w-[3.5rem] text-center text-xs text-faint">{t('pagination.pageOf', { current: currentPage, last: lastPage })}</span>
+        <Button size="sm" variant="secondary" disabled={currentPage >= lastPage} onClick={() => onPageChange(currentPage + 1)} aria-label={t('pagination.next')}>
+          <span className="hidden sm:inline">{t('pagination.next')}</span>
           <IconChevronEnd size={14} />
         </Button>
       </div>
@@ -224,29 +224,31 @@ export function Pagination({ currentPage, lastPage, total, perPage, onPageChange
 
 export function Tabs({ tabs, value, onChange }: { tabs: { id: string; label: string }[]; value: string; onChange: (id: string) => void }) {
   return (
-    <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-muted p-1">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            value === tab.id ? 'bg-surface text-content shadow-sm' : 'text-subtle hover:text-content'
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div className="-mx-1 overflow-x-auto overscroll-x-contain px-1">
+      <div className="flex w-max min-w-full gap-1 rounded-lg border border-line bg-muted p-1 sm:w-auto sm:flex-wrap">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => onChange(tab.id)}
+            className={`shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              value === tab.id ? 'bg-surface text-content shadow-sm' : 'text-subtle hover:text-content'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
 
 export function TableContainer({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`overflow-x-auto ${className}`}>{children}</div>
+  return <div className={`overflow-x-auto overscroll-x-contain ${className}`}>{children}</div>
 }
 
-export function Table({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <table className={`w-full min-w-[32rem] text-start text-sm ${className}`}>{children}</table>
+export function Table({ children, className = '', minWidth = '36rem' }: { children: ReactNode; className?: string; minWidth?: string }) {
+  return <table className={`w-full text-start text-sm ${className}`} style={{ minWidth }}>{children}</table>
 }
 
 export function TableHead({ children }: { children: ReactNode }) {
@@ -267,14 +269,14 @@ export function TableRow({ children, className = '', onClick }: { children: Reac
 
 export function TableCell({ children, className = '', colSpan }: TdHTMLAttributes<HTMLTableCellElement> & { children?: ReactNode }) {
   return (
-    <td className={`px-4 py-3 ${className}`} colSpan={colSpan}>
+    <td className={`px-3 py-2.5 sm:px-4 sm:py-3 ${className}`} colSpan={colSpan}>
       {children}
     </td>
   )
 }
 
 export function TableHeaderCell({ children, className = '' }: ThHTMLAttributes<HTMLTableCellElement> & { children?: ReactNode }) {
-  return <th className={`px-4 py-3 font-medium ${className}`}>{children}</th>
+  return <th className={`px-3 py-2.5 font-medium sm:px-4 sm:py-3 ${className}`}>{children}</th>
 }
 
 export function LoadingState({ message }: { message?: string }) {
@@ -288,12 +290,12 @@ export function LoadingState({ message }: { message?: string }) {
 }
 
 export function FilterBar({ children }: { children: ReactNode }) {
-  return <div className="mb-4 flex flex-wrap items-center gap-3">{children}</div>
+  return <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full [&>*]:sm:w-auto">{children}</div>
 }
 
 export function SearchInput({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className={`relative w-full max-w-sm ${className}`}>
+    <div className={`relative w-full sm:max-w-sm ${className}`}>
       <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-faint">
         <IconSearch size={16} />
       </span>
@@ -328,11 +330,11 @@ export function ConfirmDialog({
   const { t } = useTranslation()
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onCancel}>
-      <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-content">{title}</h3>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onCancel}>
+      <div className="w-full max-w-md rounded-t-2xl border border-line bg-surface p-4 shadow-2xl sm:rounded-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-base font-semibold text-content sm:text-lg">{title}</h3>
         <p className="mt-2 text-sm text-subtle">{message}</p>
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="secondary" onClick={onCancel}>
             {cancelLabel ?? t('common.cancel')}
           </Button>

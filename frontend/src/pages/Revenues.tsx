@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { Account, Paginated } from '../types'
-import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select } from '../components/ui'
+import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -62,27 +62,28 @@ export default function Revenues() {
         {data?.data.length === 0 && !isLoading ? (
           <EmptyState message={t('revenues.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[44rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('revenues.colRevenueNumber')}</th>
-                <th className="px-4 py-3">{t('revenues.colAccount')}</th>
-                <th className="px-4 py-3">{t('revenues.colCategory')}</th>
-                <th className="px-4 py-3">{t('revenues.colDate')}</th>
-                <th className="px-4 py-3 text-right">{t('revenues.colAmount')}</th>
-                <th className="px-4 py-3" />
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('revenues.colRevenueNumber')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('revenues.colAccount')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('revenues.colCategory')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('revenues.colDate')}</th>
+                <th className="px-3 py-2.5 text-end sm:px-4 sm:py-3">{t('revenues.colAmount')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={6}>{t('common.loading')}</td></tr>}
+              {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={6}>{t('common.loading')}</td></tr>}
               {data?.data.map((r) => (
                 <tr key={r.id}>
-                  <td className="px-4 py-3 font-mono text-subtle">{r.revenue_number}</td>
-                  <td className="px-4 py-3 text-content">{r.account?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{r.category ?? '—'}</td>
-                  <td className="px-4 py-3 text-subtle">{r.revenue_date?.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-subtle">{r.amount}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 py-2.5 font-mono text-subtle sm:px-4 sm:py-3">{r.revenue_number}</td>
+                  <td className="px-3 py-2.5 text-content sm:px-4 sm:py-3">{r.account?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{r.category ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{r.revenue_date?.slice(0, 10)}</td>
+                  <td className="px-3 py-2.5 text-end text-subtle sm:px-4 sm:py-3">{r.amount}</td>
+                  <td className="px-3 py-2.5 text-end sm:px-4 sm:py-3">
                     {can('cash.manage') && (
                       <button
                         onClick={() => confirm(t('revenues.deleteConfirm')) && deleteMutation.mutate(r.id)}
@@ -96,6 +97,7 @@ export default function Revenues() {
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
         {data && (
           <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />
@@ -113,7 +115,7 @@ export default function Revenues() {
           <Field label={t('revenues.category')}>
             <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('revenues.amount')}>
               <Input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </Field>

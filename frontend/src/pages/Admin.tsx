@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { Company, Paginated, Plan } from '../types'
-import { Badge, Card, PageHeader, Select } from '../components/ui'
+import { Badge, Card, PageHeader, Select, TableContainer } from '../components/ui'
 
 function CompaniesTab() {
   const { t } = useTranslation()
@@ -19,23 +19,24 @@ function CompaniesTab() {
   })
 
   return (
-    <table className="w-full text-left text-sm">
+    <TableContainer>
+    <table className="w-full min-w-[36rem] text-start text-sm">
       <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
-          <th className="px-4 py-3">{t('admin.colCompany')}</th>
-          <th className="px-4 py-3">{t('admin.colPlan')}</th>
-          <th className="px-4 py-3">{t('admin.colUsers')}</th>
-          <th className="px-4 py-3">{t('admin.colStatus')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colCompany')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colPlan')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colUsers')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colStatus')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-line">
-        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
+        {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={4}>{t('common.loading')}</td></tr>}
         {data?.data.map((c) => (
           <tr key={c.id}>
-            <td className="px-4 py-3 font-medium text-content">{c.name}</td>
-            <td className="px-4 py-3 text-subtle">{c.plan?.name ?? '—'}</td>
-            <td className="px-4 py-3 text-subtle">{c.users_count}</td>
-            <td className="px-4 py-3">
+            <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">{c.name}</td>
+            <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{c.plan?.name ?? '—'}</td>
+            <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{c.users_count}</td>
+            <td className="px-3 py-2.5 sm:px-4 sm:py-3">
               <Select
                 value={c.status}
                 onChange={(e) => updateStatus.mutate({ id: c.id, status: e.target.value })}
@@ -50,6 +51,7 @@ function CompaniesTab() {
         ))}
       </tbody>
     </table>
+    </TableContainer>
   )
 }
 
@@ -58,29 +60,31 @@ function PlansTab() {
   const { data, isLoading } = useQuery({ queryKey: ['admin-plans'], queryFn: async () => (await api.get<{ data: Plan[] }>('/admin/plans')).data.data })
 
   return (
-    <table className="w-full text-left text-sm">
+    <TableContainer>
+    <table className="w-full min-w-[36rem] text-start text-sm">
       <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
         <tr>
-          <th className="px-4 py-3">{t('admin.colName')}</th>
-          <th className="px-4 py-3">{t('admin.colPrice')}</th>
-          <th className="px-4 py-3">{t('admin.colBilling')}</th>
-          <th className="px-4 py-3">{t('admin.colMaxUsers')}</th>
-          <th className="px-4 py-3">{t('admin.colStatus')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colName')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colPrice')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colBilling')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colMaxUsers')}</th>
+          <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('admin.colStatus')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-line">
-        {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={5}>{t('common.loading')}</td></tr>}
+        {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={5}>{t('common.loading')}</td></tr>}
         {data?.map((p) => (
           <tr key={p.id}>
-            <td className="px-4 py-3 font-medium text-content">{p.name}</td>
-            <td className="px-4 py-3 text-subtle">{p.price}</td>
-            <td className="px-4 py-3 text-subtle">{p.billing_cycle === 'yearly' ? t('admin.billingYearly') : t('admin.billingMonthly')}</td>
-            <td className="px-4 py-3 text-subtle">{p.max_users ?? t('common.unlimited')}</td>
-            <td className="px-4 py-3"><Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
+            <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">{p.name}</td>
+            <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.price}</td>
+            <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.billing_cycle === 'yearly' ? t('admin.billingYearly') : t('admin.billingMonthly')}</td>
+            <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{p.max_users ?? t('common.unlimited')}</td>
+            <td className="px-3 py-2.5 sm:px-4 sm:py-3"><Badge color={p.is_active ? 'green' : 'gray'}>{p.is_active ? t('status.active') : t('status.inactive')}</Badge></td>
           </tr>
         ))}
       </tbody>
     </table>
+    </TableContainer>
   )
 }
 

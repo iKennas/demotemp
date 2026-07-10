@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { apiErrorMessage } from '../api/errors'
 import type { BankAccount } from '../types'
-import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Select } from '../components/ui'
+import { Button, Card, EmptyState, ErrorText, Field, Input, Modal, PageHeader, Select, TableContainer } from '../components/ui'
 import { IconPlus } from '../components/icons'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -90,27 +90,29 @@ export default function BankAccounts() {
         {(!data || data.length === 0) && !isLoading ? (
           <EmptyState message={t('bankAccounts.emptyMessage')} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[36rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('bankAccounts.colAccountName')}</th>
-                <th className="px-4 py-3">{t('bankAccounts.colBank')}</th>
-                <th className="px-4 py-3">{t('bankAccounts.colAccountNumber')}</th>
-                <th className="px-4 py-3">{t('bankAccounts.colIban')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('bankAccounts.colAccountName')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('bankAccounts.colBank')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('bankAccounts.colAccountNumber')}</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3">{t('bankAccounts.colIban')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {isLoading && <tr><td className="px-4 py-6 text-faint" colSpan={4}>{t('common.loading')}</td></tr>}
+              {isLoading && <tr><td className="px-3 py-6 text-faint sm:px-4" colSpan={4}>{t('common.loading')}</td></tr>}
               {data?.map((b) => (
                 <tr key={b.id} className="cursor-pointer hover:bg-muted" onClick={() => setEditing(b)}>
-                  <td className="px-4 py-3 font-medium text-content">{b.account_name}</td>
-                  <td className="px-4 py-3 text-subtle">{b.bank_name}</td>
-                  <td className="px-4 py-3 text-subtle">{b.account_number ?? '—'}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-subtle">{b.iban ?? '—'}</td>
+                  <td className="px-3 py-2.5 font-medium text-content sm:px-4 sm:py-3">{b.account_name}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{b.bank_name}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{b.account_number ?? '—'}</td>
+                  <td className="px-3 py-2.5 font-mono text-xs text-subtle sm:px-4 sm:py-3">{b.iban ?? '—'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
       </Card>
 
@@ -166,7 +168,7 @@ export default function BankAccounts() {
             </Field>
             <ErrorText>{error}</ErrorText>
             {can('cash.manage') && (
-              <div className="flex gap-2">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row">
                 <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
                   {updateMutation.isPending ? t('common.saving') : t('bankAccounts.saveChanges')}
                 </Button>

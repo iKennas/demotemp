@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { Paginated } from '../types'
-import { Badge, Card, EmptyState, PageHeader, Pagination, Select } from '../components/ui'
+import { Badge, Card, EmptyState, FilterBar, PageHeader, Pagination, Select, TableContainer } from '../components/ui'
 
 interface AuditLogEntry {
   id: number
@@ -34,45 +34,45 @@ export default function AuditLog() {
 
   return (
     <div>
-      <PageHeader
-        title={t('auditLog.pageTitle')}
-        action={
-          <Select value={action} onChange={(e) => { setAction(e.target.value); setPage(1) }} className="w-40">
-            <option value="">{t('auditLog.allActions')}</option>
-            <option value="created">{t('auditLog.created')}</option>
-            <option value="updated">{t('auditLog.updated')}</option>
-            <option value="deleted">{t('auditLog.deleted')}</option>
-          </Select>
-        }
-      />
+      <PageHeader title={t('auditLog.pageTitle')} />
+      <FilterBar>
+        <Select value={action} onChange={(e) => { setAction(e.target.value); setPage(1) }}>
+          <option value="">{t('auditLog.allActions')}</option>
+          <option value="created">{t('auditLog.created')}</option>
+          <option value="updated">{t('auditLog.updated')}</option>
+          <option value="deleted">{t('auditLog.deleted')}</option>
+        </Select>
+      </FilterBar>
       <Card>
         {isLoading && <p className="p-6 text-sm text-faint">{t('common.loading')}</p>}
         {!isLoading && data?.data.length === 0 && <EmptyState message={t('auditLog.emptyMessage')} />}
         {!isLoading && data && data.data.length > 0 && (
-          <table className="w-full text-left text-sm">
+          <TableContainer>
+          <table className="w-full min-w-[40rem] text-start text-sm">
             <thead className="border-b border-line bg-muted text-xs uppercase text-faint">
               <tr>
-                <th className="px-4 py-3">{t('auditLog.colWhen')}</th>
-                <th className="px-4 py-3">{t('auditLog.colUser')}</th>
-                <th className="px-4 py-3">{t('auditLog.colAction')}</th>
-                <th className="px-4 py-3">{t('auditLog.colRecord')}</th>
-                <th className="px-4 py-3">{t('auditLog.colDescription')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('auditLog.colWhen')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('auditLog.colUser')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('auditLog.colAction')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('auditLog.colRecord')}</th>
+                <th className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{t('auditLog.colDescription')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {data.data.map((log) => (
                 <tr key={log.id}>
-                  <td className="whitespace-nowrap px-4 py-3 text-subtle">{log.created_at.slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-4 py-3 text-subtle">{log.user?.name ?? t('auditLog.system')}</td>
-                  <td className="px-4 py-3">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{log.created_at.slice(0, 19).replace('T', ' ')}</td>
+                  <td className="px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{log.user?.name ?? t('auditLog.system')}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <Badge color={actionColor[log.action] ?? 'gray'}>{t(`auditLog.${log.action}`)}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-subtle">{modelLabel(log.auditable_type)} #{log.auditable_id}</td>
-                  <td className="px-4 py-3 text-content">{log.description}</td>
+                  <td className="whitespace-nowrap px-3 py-2.5 text-subtle sm:px-4 sm:py-3">{modelLabel(log.auditable_type)} #{log.auditable_id}</td>
+                  <td className="max-w-[12rem] px-3 py-2.5 text-content sm:max-w-none sm:px-4 sm:py-3">{log.description}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </TableContainer>
         )}
       </Card>
       {data && <Pagination currentPage={data.current_page} lastPage={data.last_page} total={data.total} perPage={data.per_page} onPageChange={setPage} />}
